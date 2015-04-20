@@ -5,26 +5,27 @@ var channelSlug = "sopamo"; // TODO: Use the current channel here
 
 if (Meteor.isClient) {
     onYouTubeIframeAPIReady = function () {
-
-        var channel = Channels.findOne({
-            "slug": channelSlug
-        });
-        
-        // New Video Player, the first argument is the id of the div.
-        // Make sure it's a global variable.
-        player = new YT.Player("player", {
-            height: "400",
-            width: "600",
-
-            videoId: channel.active,
-
-            // Events like ready, state change, 
-            events: {
-                onReady: function (event) {
-                    // Play video when player ready.
-                    event.target.playVideo();
-                }
+        Meteor.call("getChannel",channelSlug, function(error, channel) {
+            if(error) {
+                alert("Whoops, an error occured. Try to reload the page.");
+                return;
             }
+            // New Video Player, the first argument is the id of the div.
+            // Make sure it's a global variable.
+            player = new YT.Player("player", {
+                height: "400",
+                width: "600",
+
+                videoId: channel.active,
+
+                // Events like ready, state change, 
+                events: {
+                    onReady: function (event) {
+                        // Play video when player ready.
+                        event.target.playVideo();
+                    }
+                }
+            });
         });
     };
     
@@ -42,6 +43,9 @@ if (Meteor.isClient) {
             var channel = Channels.findOne({
                 "slug": channelSlug
             });
+            if(!channel) {
+                return false;
+            }
             return ytid == channel.active;
         }
     });
@@ -83,7 +87,6 @@ if (Meteor.isClient) {
         var c = Channels.findOne({
             "slug": "sopamo" // TODO: Use the current channel here
         });
-        console.log("rerun");
 
         if (player != null) {
             player.loadVideoById(c.active, 0);
@@ -109,7 +112,13 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
     Meteor.startup(function () {
-        // code to run on server at startup
+        if (Videos.find().count() === 0) {
+            Videos.insert({title: "You are a Pirate Limewire 10 hours", ytid: "IBH4g_ua5es"});
+            Videos.insert({title: "01. My Dear Frodo- The Hobbit: An Unexpected Journey- Soundtrack", ytid: "_gwLxntIfZY"});
+        }
+        if (Channels.find().count() === 0) {
+            Channels.insert({slug: "sopamo",active:"IBH4g_ua5es"});
+        }
     });
 
     Videos.allow({
@@ -121,14 +130,14 @@ if (Meteor.isServer) {
     });
 
     Meteor.methods({
-        changeVideo: function (channel, videoId) {
+        changeVideo: function (channelSlug, videoId) {
             // Check argument types
-            check(channel, String);
+            check(channelSlug, String);
             check(videoId, String);
 
             Channels.update(
                     {
-                        slug: channel
+                        slug: channelSlug
                     }, {
                         $set: {
                             active: videoId
@@ -136,6 +145,13 @@ if (Meteor.isServer) {
                     });
 
             return true;
+        },
+        getChannel: function(channelSlug) {
+            check(channelSlug, String);
+
+            return Channels.findOne({
+                "slug": channelSlug
+            });
         }
     });
 }
