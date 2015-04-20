@@ -6,9 +6,11 @@
   <div class="container">
     <header>
       <h1>Videos</h1>
+      
+      <div id="player"></div>
 
       <form class="add-video">
-        <input type="text" name="text" placeholder="Paste a YouTube URL to add it"/>
+        <input type="text" name="text" placeholder="Paste a YouTube URL and hit enter"/>
       </form>
     </header>
 
@@ -21,5 +23,5 @@
 </body>
 
 <template name="video">
-  <li>{{title}}</li>
+  <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">{{title}}</li>
 </template>

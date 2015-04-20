@@ -1,11 +1,48 @@
 Videos = new Mongo.Collection("videos");
 Channels = new Mongo.Collection("channels");
+var player = null;
+var channelSlug = "sopamo"; // TODO: Use the current channel here
 
 if (Meteor.isClient) {
+    onYouTubeIframeAPIReady = function () {
+
+        var channel = Channels.findOne({
+            "slug": channelSlug
+        });
+        
+        // New Video Player, the first argument is the id of the div.
+        // Make sure it's a global variable.
+        player = new YT.Player("player", {
+            height: "400",
+            width: "600",
+
+            videoId: channel.active,
+
+            // Events like ready, state change, 
+            events: {
+                onReady: function (event) {
+                    // Play video when player ready.
+                    event.target.playVideo();
+                }
+            }
+        });
+    };
+    
+    YT.load();
+    
     // This code only runs on the client
     Template.body.helpers({
         videos: function () {
             return Videos.find({});
+        }
+    });
+    
+    Template.video.helpers({
+        isActive: function(ytid) {
+            var channel = Channels.findOne({
+                "slug": channelSlug
+            });
+            return ytid == channel.active;
         }
     });
 
@@ -32,17 +69,27 @@ if (Meteor.isClient) {
         }
     });
 
-    Channels.findOne({
-        "slug": "sopamo" // TODO: Use the current channel here
-    }).observeChanges({
-        added: function () {
-        },
-        changed: function (id, fields) {
-            console.log(fields);
-        },
-        removed: function () {
+    Template.video.events({
+        'click .video-entry': function (event, template) {
+            Meteor.call('changeVideo', channelSlug, $(event.target).data("videoid"), function (error, result) {
+                if (error) {
+                    alert("Couln't change video :(");
+                }
+            });
         }
     });
+
+    Tracker.autorun(function() {
+        var c = Channels.findOne({
+            "slug": "sopamo" // TODO: Use the current channel here
+        });
+        console.log("rerun");
+
+        if (player != null) {
+            player.loadVideoById(c.active, 0);
+        }
+    });
+    
 
     function getQueryParams(qs) {
         qs = qs.split("?")[1];
@@ -63,5 +110,32 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
     Meteor.startup(function () {
         // code to run on server at startup
+    });
+
+    Videos.allow({
+        insert: function (userId, video) {
+            return true
+        }
+        // since there is no update nor a remove field, all updates
+        // are automatically denied
+    });
+
+    Meteor.methods({
+        changeVideo: function (channel, videoId) {
+            // Check argument types
+            check(channel, String);
+            check(videoId, String);
+
+            Channels.update(
+                    {
+                        slug: channel
+                    }, {
+                        $set: {
+                            active: videoId
+                        }
+                    });
+
+            return true;
+        }
     });
 }

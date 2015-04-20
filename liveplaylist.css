@@ -28,7 +28,6 @@ body {
 header {
     background: #d2edf4;
     background-image: linear-gradient(to bottom, #d0edf5, #e1e5f0 100%);
-    padding: 20px 15px 15px 15px;
     position: relative;
 }
 
@@ -38,29 +37,25 @@ header {
 
 h1 {
     font-size: 1.5em;
-    margin: 0;
-    margin-bottom: 10px;
     display: inline-block;
-    margin-right: 1em;
+    margin: 15px;
 }
 
 form {
-    margin-top: 10px;
-    margin-bottom: -10px;
     position: relative;
+    margin-top: -5px;
 }
 
-.new-task input {
+.add-video input {
     box-sizing: border-box;
-    padding: 10px 0;
+    padding: 20px 20px;
     background: transparent;
     border: none;
     width: 100%;
-    padding-right: 80px;
     font-size: 1em;
 }
 
-.new-task input:focus {
+.add-video input:focus {
     outline: 0;
 }
 
@@ -84,44 +79,19 @@ li {
     list-style: none;
     padding: 15px;
     border-bottom: #eee solid 1px;
+    cursor: pointer;
 }
 
 li .text {
     margin-left: 10px;
 }
 
-li.checked {
-    color: #888;
-}
-
-li.checked .text {
-    text-decoration: line-through;
-}
-
-li.private {
-    background: #eee;
-    border-color: #ddd;
-}
-
-header .hide-completed {
-    float: right;
-}
-
-.toggle-private {
-    margin-left: 5px;
+.video-entry.active {
+    background: #727B81;
 }
 
 @media (max-width: 600px) {
     li {
         padding: 12px 15px;
-    }
-
-    .search {
-        width: 150px;
-        clear: both;
-    }
-
-    .new-task input {
-        padding-bottom: 5px;
     }
 }
