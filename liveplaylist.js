@@ -1,12 +1,13 @@
 Videos = new Mongo.Collection("videos");
 Channels = new Mongo.Collection("channels");
-var player = null;
-var channelSlug = "sopamo"; // TODO: Use the current channel here
-var currentVideo = "";
+player = null;
+videoPage = new ReactiveDict;
+videoPage.set("channelSlug","sopamo");
+videoPage.set("currentVideo","");
 
 if (Meteor.isClient) {
     onYouTubeIframeAPIReady = function () {
-        Meteor.call("getChannel",channelSlug, function(error, channel) {
+        Meteor.call("getChannel",videoPage.get("channelSlug"), function(error, channel) {
             if(error) {
                 alert("Whoops, an error occured. Try to reload the page.");
                 return;
@@ -31,17 +32,17 @@ if (Meteor.isClient) {
                             case 0: // Ended
                                 // Start next video
                                 //var currentTime = event.target.getCurrentTime();
-                                //Meteor.call("setVideoStatus", channelSlug, event.data, 0);
+                                //Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, 0);
                                 break;
                             case 1: // Now playing
                                 // Propagate start
                                 var currentTime = event.target.getCurrentTime();
-                                Meteor.call("setVideoStatus",channelSlug,event.data,currentTime);
+                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"),event.data,currentTime);
                                 break;
                             case 2: // Paused
                                 // Propagate stop
                                 var currentTime = event.target.getCurrentTime();
-                                Meteor.call("setVideoStatus", channelSlug, event.data, currentTime);
+                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, currentTime);
                                 break;
                         }
                     }
@@ -51,18 +52,18 @@ if (Meteor.isClient) {
     };
     
     YT.load();
-    
-    // This code only runs on the client
-    Template.body.helpers({
+    Template.videolist.helpers({
         videos: function () {
-            return Videos.find({});
+            return Videos.find({
+                channel: videoPage.get("channelSlug")
+            }).fetch();
         }
     });
-    
     Template.video.helpers({
+        
         isActive: function(ytid) {
             var channel = Channels.findOne({
-                "slug": channelSlug
+                "slug": videoPage.get("channelSlug")
             });
             if(!channel) {
                 return false;
@@ -71,7 +72,7 @@ if (Meteor.isClient) {
         }
     });
 
-    Template.body.events({
+    Template.videolist.events({
         "submit .add-video": function (event) {
             // This function is called when the new video form is submitted
 
@@ -81,7 +82,8 @@ if (Meteor.isClient) {
             $.ajax({url: "https://gdata.youtube.com/feeds/api/videos/" + params.v + "?v=2&alt=json"}).done(function (data) {
                 Videos.insert({
                     title: data.entry.title.$t,
-                    ytid: params.v
+                    ytid: params.v,
+                    channel: videoPage.get("channelSlug")
                 });
             });
 
@@ -90,12 +92,18 @@ if (Meteor.isClient) {
 
             // Prevent default form submit
             return false;
+        },
+        "submit .channel-select": function(event) {
+            // This function is called when a new channel is selected
+            Router.go("/c/" +  $(".channel-input").val());
+            
+            return false;
         }
     });
 
     Template.video.events({
         'click .video-entry': function (event, template) {
-            Meteor.call('changeVideo', channelSlug, $(event.target).data("videoid"), function (error, result) {
+            Meteor.call('changeVideo', videoPage.get("channelSlug"), $(event.target).data("videoid"), function (error, result) {
                 if (error) {
                     alert("Couldn't change video :(");
                 }
@@ -105,7 +113,7 @@ if (Meteor.isClient) {
 
     Tracker.autorun(function() {
         var c = Channels.findOne({
-            "slug": "sopamo" // TODO: Use the current channel here
+            "slug": videoPage.get("channelSlug")
         });
 
         if (player != null) {
@@ -126,6 +134,16 @@ if (Meteor.isClient) {
             }
             
         }
+    });
+
+    Router.route('/', function () {
+        videoPage.set("channelSlug","sopamo");
+        this.render('videolist');
+    });
+    
+    Router.route('/c/:_channelSlug', function () {
+        videoPage.set("channelSlug", this.params._channelSlug);
+        this.render('videolist');
     });
     
 
@@ -148,8 +166,16 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
     Meteor.startup(function () {
         if (Videos.find().count() === 0) {
-            Videos.insert({title: "You are a Pirate Limewire 10 hours", ytid: "IBH4g_ua5es"});
-            Videos.insert({title: "01. My Dear Frodo- The Hobbit: An Unexpected Journey- Soundtrack", ytid: "_gwLxntIfZY"});
+            Videos.insert({
+                title: "You are a Pirate Limewire 10 hours", 
+                ytid: "IBH4g_ua5es",
+                channel: "sopamo"
+            });
+            Videos.insert({
+                title: "01. My Dear Frodo- The Hobbit: An Unexpected Journey- Soundtrack", 
+                ytid: "_gwLxntIfZY",
+                channel: "sopamo"
+            });
         }
         if (Channels.find().count() === 0) {
             Channels.insert({
@@ -209,9 +235,19 @@ if (Meteor.isServer) {
         getChannel: function(channelSlug) {
             check(channelSlug, String);
 
-            return Channels.findOne({
+            var channel = Channels.findOne({
                 "slug": channelSlug
             });
+            if(!channel) {
+                channel = Channels.insert({
+                    slug: channelSlug,
+                    active: "",
+                    currentStatus: -1,
+                    currentTime: 0,
+                    currentTimeUpdated: 0
+                });
+            }
+            return channel;
         }
     });
 }

@@ -1,27 +1,49 @@
 <head>
-  <title>Todo List</title>
+    <title>Todo List</title>
 </head>
 
 <body>
-  <div class="container">
-    <header>
-      <h1>Videos</h1>
-      
-      <div id="player"></div>
-
-      <form class="add-video">
-        <input type="text" name="text" placeholder="Paste a YouTube URL and hit enter"/>
-      </form>
-    </header>
-
-    <ul>
-      {{#each videos}}
-      {{> video}}
-      {{/each}}
-    </ul>
-  </div>
 </body>
 
+<template name="videolist">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">LivePlaylist</a>
+            </div>
+            <form class="navbar-form navbar-left channel-select" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control channel-input" placeholder="Channel">
+                </div>
+                <button type="submit" class="btn btn-default">View Channel</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li>{{> loginButtons}}</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="main-content">
+        <header>
+            <h1>Videos</h1>
+
+            <div id="player"></div>
+
+            <form class="add-video">
+                <input type="text" name="text" placeholder="Paste a YouTube URL and hit enter"/>
+            </form>
+        </header>
+
+        <ul class="video-list">
+            {{#each videos}}
+            {{> video}}
+            {{/each}}
+        </ul>
+    </div>
+</template>
+
 <template name="video">
-  <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">{{title}}</li>
+    <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
+        <i class="glyphicon glyphicon-triangle-right"></i>
+        {{title}}
+    </li>
 </template>

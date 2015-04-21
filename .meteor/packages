@@ -8,3 +8,8 @@ meteor-platform
 autopublish
 insecure
 adrianliaw:youtube-iframe-api
+accounts-ui
+accounts-facebook
+twbs:bootstrap
+iron:router
+reactive-dict

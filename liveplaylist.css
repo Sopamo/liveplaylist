@@ -1,38 +1,21 @@
 /* CSS declarations go here */
-/* CSS declarations go here */
 body {
-    font-family: sans-serif;
-    background-color: #315481;
-    background-image: linear-gradient(to bottom, #315481, #918e82 100%);
-    background-attachment: fixed;
-
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-
-    padding: 0;
-    margin: 0;
-
-    font-size: 14px;
+    background-color: #F36013;
 }
-
-.container {
+.main-content {
     max-width: 600px;
     margin: 0 auto;
     min-height: 100%;
     background: white;
 }
 
-header {
-    background: #d2edf4;
-    background-image: linear-gradient(to bottom, #d0edf5, #e1e5f0 100%);
-    position: relative;
-}
-
 #login-buttons {
     display: block;
+    margin-top: 12px;
+}
+
+.login-display-name {
+    color: white;
 }
 
 h1 {
@@ -49,17 +32,19 @@ form {
 .add-video input {
     box-sizing: border-box;
     padding: 20px 20px;
-    background: transparent;
+    background: #C54E10;
     border: none;
     width: 100%;
     font-size: 1em;
+    color: white;
+    border-bottom: 1px solid #a94410;
 }
 
 .add-video input:focus {
     outline: 0;
 }
 
-ul {
+.video-list {
     margin: 0;
     padding: 0;
     background: white;
@@ -74,7 +59,7 @@ ul {
     position: relative;
 }
 
-li {
+.video-list li {
     position: relative;
     list-style: none;
     padding: 15px;
@@ -82,12 +67,10 @@ li {
     cursor: pointer;
 }
 
-li .text {
-    margin-left: 10px;
-}
-
 .video-entry.active {
-    background: #727B81;
+    background: #C54E10;
+    color: white;
+    font-weight: bold;
 }
 
 @media (max-width: 600px) {
