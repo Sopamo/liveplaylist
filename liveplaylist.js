@@ -114,7 +114,6 @@ if (Meteor.isClient) {
                 currentVideo = c.active;
                 player.loadVideoById(c.active, 0);
             } else {
-                console.log(c);
                 // Check which state we have
                 if(c.status == 1) {
                     // We are now playing the video but it is the same video like before. Go to the given position in the video.
