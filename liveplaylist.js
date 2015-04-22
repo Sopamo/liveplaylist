@@ -1,6 +1,7 @@
 Videos = new Mongo.Collection("videos");
 Channels = new Mongo.Collection("channels");
 player = null;
+skipStateChange = false;
 videoPage = new ReactiveDict;
 videoPage.set("channelSlug","sopamo");
 videoPage.set("currentVideo","");
@@ -28,6 +29,12 @@ if (Meteor.isClient) {
                         event.target.playVideo();
                     },
                     onStateChange: function(event) {
+                        // We have to skip the state change when it was not user initiated but coming from the player switching state because we - and not the user - told it to.
+                        // Otherwise the state change would issue another Meteor.call which would again lead to a state change, and so on...
+                        if(skipStateChange && event.data >= 0) {
+                            skipStateChange = false;
+                            return;
+                        }
                         switch (event.data) {
                             case 0: // Ended
                                 // Start next video
@@ -60,7 +67,6 @@ if (Meteor.isClient) {
         }
     });
     Template.video.helpers({
-        
         isActive: function(ytid) {
             var channel = Channels.findOne({
                 "slug": videoPage.get("channelSlug")
@@ -120,15 +126,19 @@ if (Meteor.isClient) {
             if(currentVideo != c.active) {
                 // Play the active video if it is not the one already playing
                 currentVideo = c.active;
+                skipStateChange = true;
                 player.loadVideoById(c.active, 0);
             } else {
                 // Check which state we have
                 if(c.status == 1) {
                     // We are now playing the video but it is the same video like before. Go to the given position in the video.
                     // TODO: Implement lag compensation with currentTimeUpdated
+                    skipStateChange = true;
                     player.seekTo(c.currentTime,true);
+                    skipStateChange = true;
                     player.playVideo();
                 } else if(c.status == 2) {
+                    skipStateChange = true;
                     player.pauseVideo();
                 }
             }
