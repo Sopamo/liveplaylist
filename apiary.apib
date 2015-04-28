@@ -1,0 +1,66 @@
+FORMAT: 1A
+HOST: http://liveplaylistv2.meteor.com/
+
+# LivePlaylist
+
+LivePlaylist is a Meteor application with implementations for various platforms.
+It enables the user to create and view channels in which they can watch YouTube videos synchronously.
+
+# Initial words
+
+Note that communicating with the server is only possible via the Meteor [DDP protocol](https://www.meteor.com/ddp).
+
+Although the REST words GET and POST are used these are not relevant when using the API.
++ POST is used when new data is sent. This is used as [Meteor.call](https://atmospherejs.com/meteor/ddp)
++ GET is used when data is queried. This is used as [Meteor.subscribe](https://atmospherejs.com/meteor/ddp)
++ Ignore the parameters in the URLs. Only use the first word. This is what you want to call/subscribe to. 
+    
+If the URL is /changeVideo/{channelSlug}/{videoId} use it like: 
+    
+Meteor.call('changeVideo',{channelSlug:'xxx',videoId:'yyy'})
+
+
+# Channels
+
+Channels are a collection of videos which might be managed by one or more users (not implemented currently).
+
+A channel has the following attributes:
+
++ slug - A unique identifier for this channel
++ active - The id of the active YouTube video
++ currentStatus - One of the YouTube YT.PlayerState indicators. Describes the status of the active video:
+ + -1 (unstarted)
+ + 0 (ended)
+ + 1 (playing)
+ + 2 (paused)
+ + 3 (buffering)
+ + 5 (video cued)
++ currentTime - The current position of the playing video. The real currentTime is: currentTime + (now - currentTimeUpdated)
++ currentTimeUpdated - The time when the last status change was registered. 
+
+## Top channels [/topChannels]
+
+### Get the current top channels[GET]
+
++ Response 200(application/json)
+
+        [
+            {
+                "title": "Cool rock songs",
+                "slug": "cool-rock-songs",
+                "active": "IBH4g_ua5es",
+                "currentStatus": 1,
+                "currentTime": 0,
+                "currentTimeUpdated": 1429615671
+            }
+        ]
+
+## Change the active video [/changeVideo/{channelSlug}/{videoId}]
++ Parameters
+    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to change
+    + videoId (required, string, `IBH4g_ua5es`) - The YouTube id of the video which should be active
+
+### Change the active video[POST]
+
++ Response 200(boolean)
+
