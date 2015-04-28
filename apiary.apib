@@ -40,7 +40,7 @@ A channel has the following attributes:
 
 ## Top channels [/topChannels]
 
-### Get the current top channels[GET]
+### topChannels [GET]
 
 + Response 200(application/json)
 
@@ -55,12 +55,56 @@ A channel has the following attributes:
             }
         ]
 
+
+## Get a channel by its slug [/getChannel/{channelSlug}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to change
+    
+### getChannel [GET]
+
++ Response 200(application/json)
+
+        {
+            "title": "Cool rock songs",
+            "slug": "cool-rock-songs",
+            "active": "IBH4g_ua5es",
+            "currentStatus": 1,
+            "currentTime": 0,
+            "currentTimeUpdated": 1429615671
+        }
+
 ## Change the active video [/changeVideo/{channelSlug}/{videoId}]
+
 + Parameters
     + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to change
     + videoId (required, string, `IBH4g_ua5es`) - The YouTube id of the video which should be active
 
-### Change the active video[POST]
+### changeVideo [POST]
 
 + Response 200(boolean)
+
+
+## Set the video status [/setVideoStatus/{channelSlug}/{status}/{time}]
++ Parameters
+    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to change
+    + status (required, int, `1`) - The new video status, see the currentStatus Attribute of a channel
+    + time (required, int, `74`) - The current position in seconds of the video
+    
+### setVideoStatus [POST]
+
++ Response 200(boolean)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
