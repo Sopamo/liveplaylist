@@ -189,6 +189,7 @@ if (Meteor.isServer) {
         }
         if (Channels.find().count() === 0) {
             Channels.insert({
+                title: "Sopamo",
                 slug: "sopamo",
                 active:"IBH4g_ua5es",
                 currentStatus:1,
@@ -204,6 +205,10 @@ if (Meteor.isServer) {
         }
         // since there is no update nor a remove field, all updates
         // are automatically denied
+    });
+    
+    Meteor.publish('topChannels', function() {
+        return Channels.find({});
     });
 
     Meteor.methods({
@@ -258,6 +263,15 @@ if (Meteor.isServer) {
                 });
             }
             return channel;
+        },
+        addVideo: function(channelSlug, videoId, videoTitle) {
+            Videos.insert({
+                title: videoTitle,
+                ytid: videoId,
+                channel: channelSlug
+            });
+            
+            return true;
         }
     });
 }
