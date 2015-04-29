@@ -38,6 +38,15 @@ A channel has the following attributes:
 + currentTime - The current position of the playing video. The real currentTime is: currentTime + (now - currentTimeUpdated)
 + currentTimeUpdated - The time when the last status change was registered. 
 
+
+# Videos
+
+A Channel can have 0-n videos. n is currently not limited but should be soon.
+A video has the following attributes:
++ title - The title of the video. Taken from the YouTube API.
++ ytid - The YouTube id of the video
++ channel - The slug of the channel this video belongs to
+
 ## Top channels [/topChannels]
 
 ### topChannels [GET]
@@ -101,8 +110,6 @@ A channel has the following attributes:
 ### setVideoStatus [POST]
 
 + Response 200(boolean)
-
-
 
 
 
