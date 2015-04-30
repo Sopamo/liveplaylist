@@ -7,6 +7,13 @@ videoPage.set("channelSlug","sopamo");
 videoPage.set("currentVideo","");
 
 if (Meteor.isClient) {
+
+    Tracker.autorun(function() {
+        Meteor.subscribe("channelVideos", videoPage.get("channelSlug"));
+        Meteor.subscribe("channel", videoPage.get("channelSlug"));    
+    });
+    
+    
     onYouTubeIframeAPIReady = function () {
         Meteor.call("getChannel",videoPage.get("channelSlug"), function(error, channel) {
             if(error) {
@@ -59,6 +66,7 @@ if (Meteor.isClient) {
     };
     
     YT.load();
+    
     Template.videolist.helpers({
         videos: function () {
             return Videos.find({
@@ -86,10 +94,10 @@ if (Meteor.isClient) {
 
             var params = getQueryParams(url);
             $.ajax({url: "https://gdata.youtube.com/feeds/api/videos/" + params.v + "?v=2&alt=json"}).done(function (data) {
-                Videos.insert({
-                    title: data.entry.title.$t,
-                    ytid: params.v,
-                    channel: videoPage.get("channelSlug")
+                Meteor.call('addVideo', videoPage.get("channelSlug"), params.v, data.entry.title.$t, function (error, result) {
+                    if (error) {
+                        alert("Couldn't add the video :(");
+                    }
                 });
             });
 
@@ -111,6 +119,7 @@ if (Meteor.isClient) {
         'click .video-entry': function (event, template) {
             Meteor.call('changeVideo', videoPage.get("channelSlug"), $(event.target).data("videoid"), function (error, result) {
                 if (error) {
+                    console.log(error);
                     alert("Couldn't change video :(");
                 }
             });
@@ -122,7 +131,7 @@ if (Meteor.isClient) {
             "slug": videoPage.get("channelSlug")
         });
 
-        if (player != null) {
+        if (player != null && player.loadVideoById && c) {
             if(currentVideo != c.active) {
                 // Play the active video if it is not the one already playing
                 currentVideo = c.active;
@@ -153,6 +162,7 @@ if (Meteor.isClient) {
     
     Router.route('/c/:_channelSlug', function () {
         videoPage.set("channelSlug", this.params._channelSlug);
+        Meteor.subscribe("channel", videoPage.get("channelSlug"));
         this.render('videolist');
     });
     
@@ -198,17 +208,21 @@ if (Meteor.isServer) {
             });
         }
     });
-
-    Videos.allow({
-        insert: function (userId, video) {
-            return true
-        }
-        // since there is no update nor a remove field, all updates
-        // are automatically denied
-    });
     
     Meteor.publish('topChannels', function() {
         return Channels.find({});
+    });
+
+    Meteor.publish('channel', function (channelSlug) {
+        return Channels.find({
+            slug: channelSlug
+        });
+    });
+    
+    Meteor.publish('channelVideos', function(channelSlug) {
+        return Videos.find({
+            channel: channelSlug
+        });
     });
 
     Meteor.methods({
