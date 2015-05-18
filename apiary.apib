@@ -70,12 +70,12 @@ Replace {videoid} with the YouTube video id.
         ]
 
 
-## Get a channel by its slug [/getChannel/{channelSlug}]
+## Get a channel by its slug [/channel/{channelSlug}]
 
 + Parameters
-    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to change
+    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want to fetch
     
-### getChannel [GET]
+### channel [GET]
 
 + Response 200(application/json)
 
@@ -87,6 +87,29 @@ Replace {videoid} with the YouTube video id.
             "currentTime": 0,
             "currentTimeUpdated": 1429615671
         }
+        
+## Get all videos from a channel by its slug [/channelVideos/{channelSlug}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`) - The slug of the channel you want the videos from
+    
+### channelVideos [GET]
+
++ Response 200(application/json)
+
+        [
+            {
+                title: "01. My Dear Frodo- The Hobbit: An Unexpected Journey- Soundtrack", 
+                ytid: "_gwLxntIfZY",
+                channel: "sopamo"
+            },
+            {
+                title: "You are a Pirate Limewire 10 hours", 
+                ytid: "IBH4g_ua5es",
+                channel: "sopamo"
+            },
+            ...
+        ]
 
 ## Change the active video [/changeVideo/{channelSlug}/{videoId}]
 
