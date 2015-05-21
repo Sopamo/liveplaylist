@@ -89,17 +89,21 @@ if (Meteor.isClient) {
     Template.videolist.events({
         "submit .add-video": function (event) {
             // This function is called when the new video form is submitted
-
+            
             var url = event.target.text.value;
 
             var params = getQueryParams(url);
-            $.ajax({url: "https://gdata.youtube.com/feeds/api/videos/" + params.v + "?v=2&alt=json"}).done(function (data) {
-                Meteor.call('addVideo', videoPage.get("channelSlug"), params.v, data.entry.title.$t, function (error, result) {
-                    if (error) {
-                        alert("Couldn't add the video :(");
-                    }
-                });
+
+            
+            Meteor.call('addVideo', videoPage.get("channelSlug"), params.v, function (error, result) {
+                if (error) {
+                    alert("Couldn't add the video :(");
+                }
             });
+            
+            /*$.ajax({url: "https://gdata.youtube.com/feeds/api/videos/" + params.v + "?v=2&alt=json"}).done(function (data) {
+                
+            });*/
 
             // Clear form
             event.target.text.value = "";
@@ -208,6 +212,11 @@ if (Meteor.isServer) {
             });
         }
     });
+
+    YoutubeApi.authenticate({
+        type: 'key',
+        key: 'AIzaSyDyrnr-qmqnPrBZwmnMnNnz7uSMSY_XJmM'
+    });
     
     Meteor.publish('topChannels', function() {
         return Channels.find({});
@@ -278,13 +287,24 @@ if (Meteor.isServer) {
             }
             return channel;
         },
-        addVideo: function(channelSlug, videoId, videoTitle) {
-            Videos.insert({
-                title: videoTitle,
-                ytid: videoId,
-                channel: channelSlug
-            });
+        addVideo: function(channelSlug, videoId) {
             
+            YoutubeApi.videos.list({
+                part: "snippet",
+                id: videoId
+            }, Meteor.bindEnvironment(function (err, data) {
+                if (!err) {
+                    Videos.insert({
+                        title: data.items[0].snippet.title,
+                        ytid: videoId,
+                        channel: channelSlug
+                    });
+                } else {
+                    console.log(err);
+                }
+            }, function () {
+                console.log('Failed to bind environment');
+            }));
             return true;
         }
     });

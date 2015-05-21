@@ -12,3 +12,4 @@ accounts-facebook
 twbs:bootstrap
 iron:router
 reactive-dict
+renaldo:youtube-api
