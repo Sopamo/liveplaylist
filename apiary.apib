@@ -35,7 +35,7 @@ A channel has the following attributes:
  + 2 (paused)
  + 3 (buffering)
  + 5 (video cued)
-+ currentTime - The current position of the playing video. The real currentTime is: currentTime + (now - currentTimeUpdated)
++ currentTime - The current position of the playing video (in ms). The real currentTime is: currentTime + (now - currentTimeUpdated)
 + currentTimeUpdated - The time when the last status change was registered. 
 
 
@@ -132,8 +132,8 @@ Replace {videoid} with the YouTube video id.
         The slug of the channel you want to change
     + status (required, int, `1`)
         The new video status, see the currentStatus Attribute of a channel
-    + time (required, int, `74`)
-        The current position in seconds of the video
+    + time (required, float, `74.124`)
+        The current position in seconds (with 3 decimals) of the video
     
 ### setVideoStatus [POST]
 
