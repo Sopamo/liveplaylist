@@ -42,6 +42,7 @@ if (Meteor.isClient) {
                             skipStateChange = false;
                             return;
                         }
+                        console.log(event.data);
                         switch (event.data) {
                             case 0: // Ended
                                 // Start next video
@@ -93,17 +94,12 @@ if (Meteor.isClient) {
             var url = event.target.text.value;
 
             var params = getQueryParams(url);
-
             
             Meteor.call('addVideo', videoPage.get("channelSlug"), params.v, function (error, result) {
                 if (error) {
                     alert("Couldn't add the video :(");
                 }
             });
-            
-            /*$.ajax({url: "https://gdata.youtube.com/feeds/api/videos/" + params.v + "?v=2&alt=json"}).done(function (data) {
-                
-            });*/
 
             // Clear form
             event.target.text.value = "";
@@ -139,7 +135,6 @@ if (Meteor.isClient) {
             if(currentVideo != c.active) {
                 // Play the active video if it is not the one already playing
                 currentVideo = c.active;
-                skipStateChange = true;
                 player.loadVideoById(c.active, 0);
             } else {
                 // Check which state we have
@@ -290,14 +285,17 @@ if (Meteor.isServer) {
         addVideo: function(channelSlug, videoId) {
             
             YoutubeApi.videos.list({
-                part: "snippet",
+                part: "contentDetails,snippet",
                 id: videoId
             }, Meteor.bindEnvironment(function (err, data) {
                 if (!err) {
+                    console.log(data.items[0]);
+                    var duration = data.items[0].contentDetails.duration;
                     Videos.insert({
                         title: data.items[0].snippet.title,
                         ytid: videoId,
-                        channel: channelSlug
+                        channel: channelSlug,
+                        duration: duration
                     });
                 } else {
                     console.log(err);
