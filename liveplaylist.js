@@ -1,7 +1,6 @@
 Videos = new Mongo.Collection("videos");
 Channels = new Mongo.Collection("channels");
 player = null;
-skipStateChange = false;
 videoPage = new ReactiveDict;
 videoPage.set("channelSlug","sopamo");
 videoPage.set("currentVideo","");
@@ -41,31 +40,50 @@ if (Meteor.isClient) {
                 events: {
                     onReady: function (event) {
                         // Play video when player ready.
-                        event.target.playVideo();
-                        console.log("ready");
+                        // event.target.playVideo();
+
+                        // YouTube is ready, setup the channel listener
+                        Tracker.autorun(function () {
+                            var c = Channels.findOne({
+                                "slug": videoPage.get("channelSlug")
+                            });
+
+                            if (player != null && player.loadVideoById && c) {
+                                if (currentVideo != c.active) {
+                                    // Play the active video if it is not the one already playing
+                                    currentVideo = c.active;
+                                    player.loadVideoById(c.active, 0);
+                                }
+                                // Check which state we have
+                                if (c.status == 1) {
+                                    // We are now playing the video but it is the same video like before. Go to the given position in the video.
+                                    // TODO: Implement lag compensation with currentTimeUpdated
+                                    player.seekTo(c.currentTime, true);
+                                    player.playVideo();
+                                    $(".play-toggle").attr("src", "/img/ic_pause_white_24dp.png").removeClass("rotate");
+                                } else if (c.status == 2) {
+                                    player.seekTo(c.currentTime, true);
+                                    player.pauseVideo();
+                                    $(".play-toggle").attr("src", "/img/ic_play_arrow_white_24dp.png").removeClass("rotate");
+                                }
+                            }
+                        });
+                        
+                        // Also setup the progress bar update
+                        window.setInterval(function() {
+                            var percentage = player.getCurrentTime() / player.getDuration();
+                            $(".player-progress").attr("value",percentage * 100);
+                        },1000);
                     },
                     onStateChange: function(event) {
-                        // We have to skip the state change when it was not user initiated but coming from the player switching state because we - and not the user - told it to.
-                        // Otherwise the state change would issue another Meteor.call which would again lead to a state change, and so on...
-                        if(skipStateChange && event.data >= 0) {
-                            skipStateChange = false;
-                            return;
-                        }
                         switch (event.data) {
                             case 0: // Ended
                                 // Start next video
-                                //var currentTime = event.target.getCurrentTime();
                                 //Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, 0);
                                 break;
                             case 1: // Now playing
-                                // Propagate start
-                                var currentTime = event.target.getCurrentTime();
-                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"),event.data,currentTime);
                                 break;
                             case 2: // Paused
-                                // Propagate stop
-                                var currentTime = event.target.getCurrentTime();
-                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, currentTime);
                                 break;
                         }
                     }
@@ -125,6 +143,20 @@ if (Meteor.isClient) {
         "click .add-video" : function(e) {
             console.log("click");
         },
+        "click .play-toggle": function (e) {
+            var currentTime = player.getCurrentTime();
+            $(".play-toggle").attr("src", "/img/ic_sync_white_24dp.png").addClass("rotate");
+            if(player.getPlayerState() != 1) {
+                // Not playing, start the video
+                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, currentTime);
+            } else {
+                // Playing, now pause
+                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 2, currentTime);
+            }
+        },
+        "click .open-navigation": function (e) {
+            console.log("foo");
+        },
         "submit .channel-select": function(event) {
             // This function is called when a new channel is selected
             Router.go("/c/" +  $(".channel-input").val());
@@ -140,35 +172,8 @@ if (Meteor.isClient) {
                     console.log(error);
                     alert("Couldn't change video :(");
                 }
+                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, 0);
             });
-        }
-    });
-
-    Tracker.autorun(function() {
-        var c = Channels.findOne({
-            "slug": videoPage.get("channelSlug")
-        });
-
-        if (player != null && player.loadVideoById && c) {
-            if(currentVideo != c.active) {
-                // Play the active video if it is not the one already playing
-                currentVideo = c.active;
-                player.loadVideoById(c.active, 0);
-            } else {
-                // Check which state we have
-                if(c.status == 1) {
-                    // We are now playing the video but it is the same video like before. Go to the given position in the video.
-                    // TODO: Implement lag compensation with currentTimeUpdated
-                    skipStateChange = true;
-                    player.seekTo(c.currentTime,true);
-                    skipStateChange = true;
-                    player.playVideo();
-                } else if(c.status == 2) {
-                    skipStateChange = true;
-                    player.pauseVideo();
-                }
-            }
-            
         }
     });
 

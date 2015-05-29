@@ -14,6 +14,9 @@
     <link rel="import" href="/bower_components/paper-item/paper-item.html">
     <link rel="import" href="/bower_components/paper-slider/paper-slider.html">
     <link rel="import" href="/bower_components/paper-toolbar/paper-toolbar.html">
+    <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
+    <link rel="import" href="/bower_components/paper-progress/paper-progress.html">
 </head>
 
 <body class="fullbleed layout vertical">
@@ -37,16 +40,22 @@
         </div>
     </nav>-->
     <div style="width:100%;height:100%;">
-        <paper-header-panel mode="cover" style="height: 100%" class="lime">
-            <div class="main-header paper-header tall"></div>
+        <paper-drawer-panel>
+            <paper-material drawer elevation="5">
+                <h1>Top Channels</h1>
+            </paper-material>
+            <paper-header-panel main mode="cover" style="height: 100%" class="lime">
+                <div class="main-header paper-header tall"></div>
                 <div class="content cover main-content">
                     <paper-material elevation="5">
+
                         <paper-toolbar class="channel-toolbar">
-                            <paper-icon-button icon="menu" on-tap="menuAction"></paper-icon-button>
+                            <paper-icon-button class="open-navigation" paper-drawer-toggle icon="menu"></paper-icon-button>
                             <div title>{{ channelSlug }}</div>
-                            <paper-icon-button icon="more" on-tap="moreAction"></paper-icon-button>
                         </paper-toolbar>
+                        
                         <div id="player"></div>
+                        <paper-progress value="0" class="player-progress"></paper-progress>
                         <div id="player-overlay"></div>
                         <ul class="video-list">
                             {{#each videos}}
@@ -54,16 +63,17 @@
                             {{/each}}
                         </ul>
                         <paper-fab icon="add" class="add-video"></paper-fab>
+                        <paper-fab src="/img/ic_sync_white_24dp.png" class="play-toggle rotate"></paper-fab>
                     </paper-material>
                 </div>
-        </paper-header-panel>
+            </paper-header-panel>
+        </paper-drawer-panel>
     </div>
 </template>
 
 
 <template name="video">
     <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
-        <i class="glyphicon glyphicon-triangle-right"></i>
         {{title}}
     </li>
 </template>
