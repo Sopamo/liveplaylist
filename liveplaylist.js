@@ -26,6 +26,14 @@ if (Meteor.isClient) {
             player = new YT.Player("player", {
                 height: "400",
                 width: "600",
+                
+                playerVars: {
+                    disablekb: 1,
+                    controls: 0,
+                    playsinline: 1,
+                    rel: 0,
+                    showinfo: 0
+                },
 
                 videoId: channel.active,
 
@@ -34,6 +42,7 @@ if (Meteor.isClient) {
                     onReady: function (event) {
                         // Play video when player ready.
                         event.target.playVideo();
+                        console.log("ready");
                     },
                     onStateChange: function(event) {
                         // We have to skip the state change when it was not user initiated but coming from the player switching state because we - and not the user - told it to.
@@ -42,7 +51,6 @@ if (Meteor.isClient) {
                             skipStateChange = false;
                             return;
                         }
-                        console.log(event.data);
                         switch (event.data) {
                             case 0: // Ended
                                 // Start next video
@@ -73,6 +81,9 @@ if (Meteor.isClient) {
             return Videos.find({
                 channel: videoPage.get("channelSlug")
             }).fetch();
+        },
+        channelSlug: function() {
+            return videoPage.get("channelSlug");
         }
     });
     Template.video.helpers({
@@ -88,6 +99,10 @@ if (Meteor.isClient) {
     });
 
     Template.videolist.events({
+        // 'change' is the event emitted by the component
+        'change #video-menu': function (e, template) {
+            console.log(e.target.value);
+        },
         "submit .add-video": function (event) {
             // This function is called when the new video form is submitted
             
@@ -106,6 +121,9 @@ if (Meteor.isClient) {
 
             // Prevent default form submit
             return false;
+        },
+        "click .add-video" : function(e) {
+            console.log("click");
         },
         "submit .channel-select": function(event) {
             // This function is called when a new channel is selected

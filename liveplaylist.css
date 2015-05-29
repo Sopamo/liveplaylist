@@ -1,62 +1,53 @@
 /* CSS declarations go here */
-body {
-    background-color: #F36013;
-}
-.main-content {
-    max-width: 600px;
-    margin: 0 auto;
+html, body {
     min-height: 100%;
+    height: 100%;
+}
+
+.main-header {
+    background: url(/img/background.svg);
+    background-size: cover;
+    height: 500px;
+}
+
+.main-content {
+    width: 60%;
+    min-width: 500px;
+    max-width: 1024px;
+    margin: 0 auto;
+    min-height: 600px;
+}
+
+paper-toolbar.channel-toolbar {
+    background: #F56A22;
+}
+
+.main-content > paper-material {
     background: white;
 }
 
-#login-buttons {
-    display: block;
-    margin-top: 12px;
-}
-
-.login-display-name {
-    color: white;
-}
-
-h1 {
-    font-size: 1.5em;
-    display: inline-block;
-    margin: 15px;
-}
-
-form {
-    position: relative;
-    margin-top: -5px;
-}
-
-.add-video input {
-    box-sizing: border-box;
-    padding: 20px 20px;
-    background: #C54E10;
-    border: none;
+#player {
     width: 100%;
-    font-size: 1em;
-    color: white;
-    border-bottom: 1px solid #a94410;
 }
 
-.add-video input:focus {
-    outline: 0;
+paper-fab.add-video {
+    background: #F56A22;
+    position: absolute;
+    right: -28px;
+    top: 472px;
+}
+
+#player-overlay {
+    width: 100%;
+    height: 400px;
+    position: absolute;
+    top: 64px;
 }
 
 .video-list {
     margin: 0;
     padding: 0;
     background: white;
-}
-
-.delete {
-    float: right;
-    font-weight: bold;
-    background: none;
-    font-size: 1em;
-    border: none;
-    position: relative;
 }
 
 .video-list li {
@@ -68,13 +59,7 @@ form {
 }
 
 .video-entry.active {
-    background: #C54E10;
+    background: #F56A22;
     color: white;
     font-weight: bold;
-}
-
-@media (max-width: 600px) {
-    li {
-        padding: 12px 15px;
-    }
 }

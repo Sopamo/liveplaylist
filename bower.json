@@ -1,0 +1,31 @@
+{
+  "name": "livetube",
+  "main": "liveplaylist.js",
+  "version": "2.0.0",
+  "homepage": "https://github.com/Sopamo/liveplaylist",
+  "authors": [
+    "Paul Mohr <github@sopamo.de>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "paper-header-panel": "PolymerElements/paper-header-panel#^1.0.0",
+    "paper-material": "PolymerElements/paper-material#^1.0.0",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.0.0",
+    "paper-button": "PolymerElements/paper-button#^1.0.0",
+    "paper-fab": "PolymerElements/paper-fab#^1.0.0",
+    "iron-icons": "PolymerElements/iron-icons#^1.0.0",
+    "paper-item": "PolymerElements/paper-item#^1.0.0",
+    "paper-menu": "PolymerElements/paper-menu#^1.0.0",
+    "paper-slider": "PolymerElements/paper-slider#^1.0.0",
+    "paper-toolbar": "PolymerElements/paper-toolbar#^1.0.0",
+    "google-youtube": "GoogleWebComponents/google-youtube#^1.1.0"
+  }
+}
