@@ -155,6 +155,9 @@ if (Meteor.isClient) {
         },
         topChannels: function () {
             return Channels.find();
+        },
+        username: function() {
+            return Meteor.user().username || Meteor.user().profile.name;
         }
     });
     Template.video.helpers({
