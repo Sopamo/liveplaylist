@@ -4,6 +4,20 @@ html, body {
     height: 100%;
 }
 
+h2 {
+    margin-left: 20px;
+    margin-top: 0;
+    padding: 20px 0 10px 0;
+}
+
+.sidebar {
+    overflow-y: scroll;
+}
+
+.account-data {
+    margin-left: 20px;
+}
+
 .main-header {
     background: url(/img/background.svg);
     background-size: cover;
@@ -28,6 +42,7 @@ paper-toolbar.channel-toolbar {
 
 #player {
     width: 100%;
+    height: 400px;
 }
 
 paper-fab.add-video {
@@ -44,11 +59,12 @@ paper-fab.add-video {
     top: 64px;
 }
 
-.play-toggle {
+paper-fab.play-toggle {
     position: absolute;
     left: 50%;
     margin-left: -20px;
     top: 430px;
+    background: #EAE9E4;
 }
 
 .video-list {
@@ -75,6 +91,7 @@ paper-fab.add-video {
     width: 100%;
     height: 40px;
     margin-top: -5px;
+    cursor: pointer;
 }
 
 .rotate {
@@ -101,4 +118,40 @@ paper-fab.add-video {
         -webkit-transform: rotate(359deg);
         transform: rotate(359deg);
     }
+}
+
+.top-channels {
+    margin: 0;
+    padding: 0;
+}
+
+.top-channels li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.top-channels .top-channel-wrapper {
+    margin-bottom: 20px;
+    margin-left: 20px;
+    width: 80%;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    overflow: hidden;
+}
+
+.top-channels .top-channel .channel-name {
+    background: #FFFFFF;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    position: absolute;
+    bottom: 0;
+    color: #393939;
+    font-size: 18px;
+    padding: 0 15px;
+}
+
+.top-channels .top-channel img {
+    max-width: 100%;
 }

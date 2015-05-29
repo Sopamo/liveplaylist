@@ -12,6 +12,8 @@ if (Meteor.isClient) {
         Meteor.subscribe("channel", videoPage.get("channelSlug"));    
     });
     
+    Meteor.subscribe("topChannels");
+    
     
     onYouTubeIframeAPIReady = function () {
         Meteor.call("getChannel",videoPage.get("channelSlug"), function(error, channel) {
@@ -60,20 +62,46 @@ if (Meteor.isClient) {
                                     // TODO: Implement lag compensation with currentTimeUpdated
                                     player.seekTo(c.currentTime, true);
                                     player.playVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_pause_white_24dp.png").removeClass("rotate");
+                                    $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
                                 } else if (c.status == 2) {
                                     player.seekTo(c.currentTime, true);
                                     player.pauseVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_play_arrow_white_24dp.png").removeClass("rotate");
+                                    $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
                                 }
                             }
                         });
+
+
+                        // Setup the progress bar dragging
+                        var progress = $(".player-progress").get(0);
+                        var dragActive = false;
                         
                         // Also setup the progress bar update
                         window.setInterval(function() {
-                            var percentage = player.getCurrentTime() / player.getDuration();
-                            $(".player-progress").attr("value",percentage * 100);
+                            // Only update the progress bar when we are not currently dragging it and if the player is playing
+                            if(!dragActive && player.getPlayerState() == 1) {
+                                var percentage = player.getCurrentTime() / player.getDuration();
+                                $(".player-progress").attr("value",percentage * 100);
+                            }
                         },1000);
+                        
+                        // Handle the drag events for the progress bar
+                        progress.addEventListener("mousedown", function () {
+                            dragActive = true;
+                        }, false);
+                        progress.addEventListener("mousemove", function (e) {
+                            if(dragActive) {
+                                var percentage = e.layerX / e.target.clientWidth;
+                                $(".player-progress").attr("value", percentage * 100);
+                            }
+                        }, false);
+                        progress.addEventListener("mouseup", function (e) {
+                            dragActive = false;
+                            var percentage = e.layerX / e.target.clientWidth;
+                            $(".player-progress").attr("value", percentage * 100);
+                            $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
+                            Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * player.getDuration());
+                        }, false);
                     },
                     onStateChange: function(event) {
                         switch (event.data) {
@@ -93,6 +121,28 @@ if (Meteor.isClient) {
     };
     
     YT.load();
+
+    AccountsTemplates.addField({
+        _id: 'username',
+        type: 'text',
+        required: true,
+        func: function (value) {
+            if (Meteor.isClient) {
+                console.log("Validating username...");
+                var self = this;
+                Meteor.call("userExists", value, function (err, userExists) {
+                    if (!userExists)
+                        self.setSuccess();
+                    else
+                        self.setError(userExists);
+                    self.setValidating(false);
+                });
+                return;
+            }
+            // Server
+            return Meteor.call("userExists", value);
+        }
+    });
     
     Template.videolist.helpers({
         videos: function () {
@@ -102,6 +152,9 @@ if (Meteor.isClient) {
         },
         channelSlug: function() {
             return videoPage.get("channelSlug");
+        },
+        topChannels: function () {
+            return Channels.find();
         }
     });
     Template.video.helpers({
@@ -145,7 +198,7 @@ if (Meteor.isClient) {
         },
         "click .play-toggle": function (e) {
             var currentTime = player.getCurrentTime();
-            $(".play-toggle").attr("src", "/img/ic_sync_white_24dp.png").addClass("rotate");
+            $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
             if(player.getPlayerState() != 1) {
                 // Not playing, start the video
                 Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, currentTime);
@@ -167,6 +220,7 @@ if (Meteor.isClient) {
 
     Template.video.events({
         'click .video-entry': function (event, template) {
+            $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
             Meteor.call('changeVideo', videoPage.get("channelSlug"), $(event.target).data("videoid"), function (error, result) {
                 if (error) {
                     console.log(error);

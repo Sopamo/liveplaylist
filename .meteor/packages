@@ -13,3 +13,6 @@ twbs:bootstrap
 iron:router
 reactive-dict
 renaldo:youtube-api
+useraccounts:core
+accounts-password
+useraccounts:bootstrap

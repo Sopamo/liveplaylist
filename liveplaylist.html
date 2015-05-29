@@ -17,6 +17,9 @@
     <link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
     <link rel="import" href="/bower_components/paper-progress/paper-progress.html">
+    <link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="bower_components/paper-input/paper-input.html">
+    <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 </head>
 
 <body class="fullbleed layout vertical">
@@ -41,8 +44,22 @@
     </nav>-->
     <div style="width:100%;height:100%;">
         <paper-drawer-panel>
-            <paper-material drawer elevation="5">
-                <h1>Top Channels</h1>
+            <paper-material class="sidebar" drawer elevation="5">
+                <h2>Your Account</h2>
+                <div class="account-data">
+                    {{#if currentUser}}
+                        Welcome {{ currentUser.username }}<br>
+                        {{> atNavButton}}
+                    {{else}}
+                        {{> atForm}}
+                    {{/if}}
+                </div>
+                <h2>Top Channels</h2>
+                <ul class="top-channels">
+                    {{#each topChannels}}
+                        {{> topChannel}}
+                    {{/each}}
+                </ul>
             </paper-material>
             <paper-header-panel main mode="cover" style="height: 100%" class="lime">
                 <div class="main-header paper-header tall"></div>
@@ -59,11 +76,11 @@
                         <div id="player-overlay"></div>
                         <ul class="video-list">
                             {{#each videos}}
-                            {{> video}}
+                                {{> video}}
                             {{/each}}
                         </ul>
                         <paper-fab icon="add" class="add-video"></paper-fab>
-                        <paper-fab src="/img/ic_sync_white_24dp.png" class="play-toggle rotate"></paper-fab>
+                        <paper-fab src="/img/ic_sync_black_24dp.png" class="play-toggle rotate"></paper-fab>
                     </paper-material>
                 </div>
             </paper-header-panel>
@@ -71,6 +88,21 @@
     </div>
 </template>
 
+<template name="topChannel">
+    <li>
+        <a href="/c/{{slug}}">
+            <paper-material elevation="2" class="top-channel-wrapper">
+                <paper-ripple></paper-ripple>
+                <div class="top-channel">
+                    <img src="http://img.youtube.com/vi/{{active}}/0.jpg">
+                    <div class="channel-name">
+                        {{slug}}
+                    </div>
+                </div>
+            </paper-material>
+        </a>
+    </li>
+</template>
 
 <template name="video">
     <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
