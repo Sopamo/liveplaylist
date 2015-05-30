@@ -2,6 +2,7 @@
     <title>LiveTube</title>
 
     <script type="text/javascript" src="/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
     <link rel="import" href="/bower_components/polymer/polymer.html">
     <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
     <link rel="import" href="/bower_components/iron-icons/av-icons.html">
@@ -18,46 +19,29 @@
     <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
     <link rel="import" href="/bower_components/paper-progress/paper-progress.html">
     <link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
-    <link rel="import" href="bower_components/paper-input/paper-input.html">
-    <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 </head>
 
-<body class="fullbleed layout vertical">
+<body class="">
 </body>
 
 <template name="videolist">
-    <!--<nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">LivePlaylist</a>
-            </div>
-            <form class="navbar-form navbar-left channel-select" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control channel-input" placeholder="Channel">
-                </div>
-                <button type="submit" class="btn btn-default">View Channel</button>
-            </form>
-            <ul class="nav navbar-nav navbar-right">
-                <li>{{> loginButtons}}</li>
-            </ul>
-        </div>
-    </nav>-->
     <div style="width:100%;height:100%;">
         <paper-drawer-panel>
             <paper-material class="sidebar" drawer elevation="5">
                 <h2>Your Account</h2>
+
                 <div class="account-data">
                     {{#if currentUser}}
-                        Welcome {{ username }}<br>
-                        {{> atNavButton}}
+                    Welcome {{ username }}<br>
+                    {{> atNavButton}}
                     {{else}}
-                        {{> atForm}}
+                    {{> atForm}}
                     {{/if}}
                 </div>
                 <h2>Top Channels</h2>
                 <ul class="top-channels">
                     {{#each topChannels}}
-                        {{> topChannel}}
+                    {{> topChannel}}
                     {{/each}}
                 </ul>
             </paper-material>
@@ -70,13 +54,13 @@
                             <paper-icon-button class="open-navigation" paper-drawer-toggle icon="menu"></paper-icon-button>
                             <div title>{{ channelSlug }}</div>
                         </paper-toolbar>
-                        
+
                         <div id="player"></div>
                         <paper-progress value="0" class="player-progress"></paper-progress>
                         <div id="player-overlay"></div>
                         <ul class="video-list">
                             {{#each videos}}
-                                {{> video}}
+                            {{> video}}
                             {{/each}}
                         </ul>
                         <paper-fab icon="add" class="add-video"></paper-fab>
@@ -90,11 +74,12 @@
 
 <template name="topChannel">
     <li>
-        <a href="/c/{{slug}}">
+        <a href="/c/{{slug}}" class="top-channel-link">
             <paper-material elevation="2" class="top-channel-wrapper">
                 <paper-ripple></paper-ripple>
                 <div class="top-channel">
                     <img src="http://img.youtube.com/vi/{{active}}/0.jpg">
+
                     <div class="channel-name">
                         {{slug}}
                     </div>

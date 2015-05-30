@@ -1,0 +1,122 @@
+<template name="frontpage">
+    <div class="frontpage-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="nav nav-pills main-navigation pull-right">
+                        <li role="presentation" class="active"><a href="/">Start</a></li>
+                        <li role="presentation"><a href="/about">About us</a></li>
+                        <li role="presentation"><a href="/imprint">Imprint</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <img src="/img/v2banner.png" alt="LiveTube v2">
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <h1>Remote control & sync <br>YouTube videos</h1>
+                    <p class="lead">
+                        Supercharge your YouTube experience.<br>
+                        <strong>Synchronize Videos</strong> with your friends<br>
+                        <strong>Remote control</strong> your custom channels
+                    </p>
+                    <div class="download-badge">
+                        <a href="/c/sopamo" class="top-channel-link">
+                            <paper-button raised tabindex="0">Start Web App</paper-button>
+                        </a>
+                    </div>
+                    <div class="download-badge">
+                        <a href="https://play.google.com/store/search?q=pub:Sopamo">
+                            <img alt="Android app on Google Play"
+                                 src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png"/>
+                        </a>
+                    </div>
+                    <div class="download-badge">
+                        <a href="http://apple.de">
+                            <img src="/img/app-store-download.svg" alt="Download on the App Store"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="frontpage-top-channels">
+        <h1 style="text-align: center">Active channels</h1>
+        <ul class="frontpage-top-channel-list">
+            {{#each topChannels}}
+                {{> topChannel}}
+            {{/each}}
+        </ul>
+    </section>
+    <section class="explanation-section">
+        <h1 style="text-align: center">What is LiveTube?</h1>
+        <div class="container">
+            <div class="row">
+                <section class="explanation col-sm-12 col-md-6">
+                    <h1>Synchronize</h1>
+                    <p class="lead">
+                        Create your own channel, add some videos, tell your friends to join and you will all be watching the exact same movie perfectly synchronized. Wonderful for listening to music together or watching trailers & movies.
+                    </p>
+                </section>
+                <section class="explanation col-sm-12 col-md-6">
+                    <h1>Remote control</h1>
+                    <p class="lead">
+                        Create a channel (it's free!), add your videos and control the music from your couch (app available for Android, iPhone & WindowsPhone)
+                    </p>
+                </section>
+            </div>
+
+            <div style="text-align: center">
+                <h2>Create your own channel (it's free!)</h2>
+                <div class="row">
+                    <div class="col-md-offset-4 col-md-3">
+                        <input type="text" class="form-control input-lg create-channel-input" placeholder="Enter your channel name">
+                    </div>
+                    <div class="col-md-1">
+                        <paper-button raised class="create-channel-button">Go!</paper-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="details-section">
+        <h1 style="text-align: center;">Want to know more?</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>How many channels can I create?</h2>
+                    <p>
+                        You can create as many channels as you like. Channels are not private initially. Everyone can add videos and control every unclaimed channel.<br>
+                        When you create an account (it's free!) you are able to "claim" up to three channels at a time. These channels can only be modified by yourself and can even be completely private.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h2>How much does LiveTube cost?</h2>
+
+                    <p>
+                        LiveTube is completely free! Yay!
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Do I need a permanent internet connection</h2>
+
+                    <p>
+                        Yes. As we need to stream the YouTube video and also have to be connected to our synchronizing servers you always need an internet connection.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h2>Do I need to be in the same network to control my channel?</h2>
+
+                    <p>
+                        No! All you need is internet access. There is nothing to set up. Just open the app or the website and you can control all channels right away.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>

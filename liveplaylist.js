@@ -4,127 +4,12 @@ player = null;
 videoPage = new ReactiveDict;
 videoPage.set("channelSlug","sopamo");
 videoPage.set("currentVideo","");
+onYouTubeIframeAPIReady = null;
 
 if (Meteor.isClient) {
 
-    Tracker.autorun(function() {
-        Meteor.subscribe("channelVideos", videoPage.get("channelSlug"));
-        Meteor.subscribe("channel", videoPage.get("channelSlug"));    
-    });
-    
-    Meteor.subscribe("topChannels");
     
     
-    onYouTubeIframeAPIReady = function () {
-        Meteor.call("getChannel",videoPage.get("channelSlug"), function(error, channel) {
-            if(error) {
-                alert("Whoops, an error occured. Try to reload the page.");
-                return;
-            }
-            
-            currentVideo = channel.active;
-            
-            player = new YT.Player("player", {
-                height: "400",
-                width: "600",
-                
-                playerVars: {
-                    disablekb: 1,
-                    controls: 0,
-                    playsinline: 1,
-                    rel: 0,
-                    showinfo: 0
-                },
-
-                videoId: channel.active,
-
-                // Events like ready, state change, 
-                events: {
-                    onReady: function (event) {
-                        // Play video when player ready.
-                        // event.target.playVideo();
-
-                        // YouTube is ready, setup the channel listener
-                        Tracker.autorun(function () {
-                            var c = Channels.findOne({
-                                "slug": videoPage.get("channelSlug")
-                            });
-
-                            if (player != null && player.loadVideoById && c) {
-                                if (currentVideo != c.active) {
-                                    // Play the active video if it is not the one already playing
-                                    currentVideo = c.active;
-                                    player.loadVideoById(c.active, 0);
-                                }
-
-                                var currentTime = c.currentTime + ((new Date().getTime()/1000) - c.currentTimeUpdated);
-
-                                // Check which state we have
-                                if (c.status == 1) {
-                                    // We are now playing the video but it is the same video like before. Go to the given position in the video.
-                                    
-                                    player.seekTo(currentTime, true);
-                                    player.playVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
-                                } else if (c.status == 2) {
-                                    player.seekTo(currentTime, true);
-                                    player.pauseVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
-                                }
-                            }
-                        });
-
-
-                        // Setup the progress bar dragging
-                        var progress = $(".player-progress").get(0);
-                        var dragActive = false;
-                        
-                        // Also setup the progress bar update
-                        window.setInterval(function() {
-                            // Only update the progress bar when we are not currently dragging it and if the player is playing
-                            if(!dragActive && player.getPlayerState() == 1) {
-                                var percentage = player.getCurrentTime() / player.getDuration();
-                                $(".player-progress").attr("value",percentage * 100);
-                            }
-                        },1000);
-                        
-                        // Handle the drag events for the progress bar
-                        progress.addEventListener("mousedown", function () {
-                            dragActive = true;
-                        }, false);
-                        progress.addEventListener("mousemove", function (e) {
-                            if(dragActive) {
-                                var percentage = e.layerX / e.target.clientWidth;
-                                $(".player-progress").attr("value", percentage * 100);
-                            }
-                        }, false);
-                        progress.addEventListener("mouseup", function (e) {
-                            dragActive = false;
-                            var percentage = e.layerX / e.target.clientWidth;
-                            $(".player-progress").attr("value", percentage * 100);
-                            $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
-                            Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * player.getDuration());
-                        }, false);
-                    },
-                    onStateChange: function(event) {
-                        switch (event.data) {
-                            case 0: // Ended
-                                // Start next video
-                                //Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, 0);
-                                break;
-                            case 1: // Now playing
-                                break;
-                            case 2: // Paused
-                                break;
-                        }
-                    }
-                }
-            });
-        });
-    };
-    
-    YT.load();
-
     AccountsTemplates.addField({
         _id: 'username',
         type: 'text',
@@ -144,6 +29,29 @@ if (Meteor.isClient) {
             }
             // Server
             return Meteor.call("userExists", value);
+        }
+    });
+    
+    Template.frontpage.helpers({
+        topChannels: function() {
+            return Channels.find();
+        }
+    });
+    
+    Template.frontpage.events({
+        'click .top-channel-link': function (e) {
+            Router.stop();
+            e.preventDefault();
+            window.location.href = e.currentTarget.href;
+        },
+        'click .create-channel-button': function(e) {
+            window.location.href = "/c/" + $(".create-channel-input").val();
+        },
+        'keyup .create-channel-input': function(e) {
+            if(e.which == 13) {
+                // Enter pressed
+                window.location.href = "/c/" + $(".create-channel-input").val();
+            }
         }
     });
     
@@ -238,16 +146,140 @@ if (Meteor.isClient) {
     });
 
     Router.route('/', function () {
-        videoPage.set("channelSlug","sopamo");
-        this.render('videolist');
+        Meteor.subscribe("topChannels");
+        this.render('frontpage');
     });
     
     Router.route('/c/:_channelSlug', function () {
         videoPage.set("channelSlug", this.params._channelSlug);
-        Meteor.subscribe("channel", videoPage.get("channelSlug"));
+        Meteor.subscribe("topChannels");
+        Tracker.autorun(function () {
+            Meteor.subscribe("channelVideos", videoPage.get("channelSlug"));
+            Meteor.subscribe("channel", videoPage.get("channelSlug"));
+        });
+
+        initalizeYoutube();
+        
         this.render('videolist');
     });
     
+    function initalizeYoutube() {
+        onYouTubeIframeAPIReady = function () {
+            Meteor.call("getChannel", videoPage.get("channelSlug"), function (error, channel) {
+                if (error) {
+                    alert("Whoops, an error occured. Try to reload the page.");
+                    return;
+                }
+
+                currentVideo = channel.active;
+
+                player = new YT.Player("player", {
+                    height: "400",
+                    width: "600",
+
+                    playerVars: {
+                        disablekb: 1,
+                        controls: 0,
+                        playsinline: 1,
+                        rel: 0,
+                        showinfo: 0
+                    },
+
+                    videoId: channel.active,
+
+                    // Events like ready, state change, 
+                    events: {
+                        onReady: function (event) {
+                            // Play video when player ready.
+                            // event.target.playVideo();
+
+                            // YouTube is ready, setup the channel listener
+                            Tracker.autorun(function () {
+                                var c = Channels.findOne({
+                                    "slug": videoPage.get("channelSlug")
+                                });
+
+                                if (player != null && player.loadVideoById && c) {
+                                    if (currentVideo != c.active) {
+                                        // Play the active video if it is not the one already playing
+                                        currentVideo = c.active;
+                                        player.loadVideoById(c.active, 0);
+                                    }
+
+                                    var currentTime = c.currentTime + ((new Date().getTime() / 1000) - c.currentTimeUpdated);
+
+                                    // Check which state we have
+                                    if (c.status == 1) {
+                                        // We are now playing the video but it is the same video like before. Go to the given position in the video.
+
+                                        player.seekTo(currentTime, true);
+                                        player.playVideo();
+                                        $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
+                                    } else if (c.status == 2) {
+                                        player.seekTo(currentTime, true);
+                                        player.pauseVideo();
+                                        $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
+                                    }
+                                }
+                            });
+
+
+                            // Setup the progress bar dragging
+                            var progress = $(".player-progress").get(0);
+                            var dragActive = false;
+
+                            // Also setup the progress bar update
+                            window.setInterval(function () {
+                                // Only update the progress bar when we are not currently dragging it and if the player is playing
+                                if (!dragActive && player.getPlayerState() == 1) {
+                                    var percentage = player.getCurrentTime() / player.getDuration();
+                                    $(".player-progress").attr("value", percentage * 100);
+                                }
+                            }, 1000);
+
+                            // Handle the drag events for the progress bar
+                            progress.addEventListener("mousedown", function () {
+                                dragActive = true;
+                            }, false);
+                            progress.addEventListener("mousemove", function (e) {
+                                if (dragActive) {
+                                    var percentage = e.layerX / e.target.clientWidth;
+                                    $(".player-progress").attr("value", percentage * 100);
+                                }
+                            }, false);
+                            progress.addEventListener("mouseup", function (e) {
+                                dragActive = false;
+                                var percentage = e.layerX / e.target.clientWidth;
+                                $(".player-progress").attr("value", percentage * 100);
+                                $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
+                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * player.getDuration());
+                            }, false);
+                        },
+                        onStateChange: function (event) {
+                            switch (event.data) {
+                                case 0: // Ended
+                                    // Start next video
+                                    //Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, 0);
+                                    break;
+                                case 1: // Now playing
+                                    break;
+                                case 2: // Paused
+                                    break;
+                            }
+                        }
+                    }
+                });
+            });
+        };
+
+        var tag = document.createElement('script');
+
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+        
+    }
 
     function getQueryParams(qs) {
         qs = qs.split("?")[1];
