@@ -329,7 +329,7 @@ if (Meteor.isServer) {
     });
     
     Meteor.publish('topChannels', function() {
-        return Channels.find({});
+        return Channels.find({active: {$ne: ""}});
     });
 
     Meteor.publish('channel', function (channelSlug) {
