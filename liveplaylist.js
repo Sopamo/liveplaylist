@@ -56,15 +56,18 @@ if (Meteor.isClient) {
                                     currentVideo = c.active;
                                     player.loadVideoById(c.active, 0);
                                 }
+
+                                var currentTime = c.currentTime + ((new Date().getTime()/1000) - c.currentTimeUpdated);
+
                                 // Check which state we have
                                 if (c.status == 1) {
                                     // We are now playing the video but it is the same video like before. Go to the given position in the video.
-                                    // TODO: Implement lag compensation with currentTimeUpdated
-                                    player.seekTo(c.currentTime, true);
+                                    
+                                    player.seekTo(currentTime, true);
                                     player.playVideo();
                                     $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
                                 } else if (c.status == 2) {
-                                    player.seekTo(c.currentTime, true);
+                                    player.seekTo(currentTime, true);
                                     player.pauseVideo();
                                     $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
                                 }
