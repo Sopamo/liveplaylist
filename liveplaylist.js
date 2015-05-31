@@ -102,17 +102,18 @@ if (Meteor.isClient) {
 
             // Clear form
             $("#add-video-content").val("");
+            // Close form
+            $("#pages").get(0).selected = 0;
 
             // Prevent default form submit
             return false;
         },
-        "click .add-video" : function(e) {
-            $("#add-video-dialog").get(0).open();
+        "click #grid": function(event) {
+            $("#fullsize-card").get(0).color = "blue";
+            $("#pages").get(0).selected = 1;
         },
-        "iron-overlay-closed #add-video-dialog": function(e) {
-            if(e.originalEvent.detail.confirmed === true) {
-                $(".add-video").trigger("submit");
-            }
+        "click #add-video-button": function(e) {
+            $(".add-video").trigger("submit");
         },
         "click .play-toggle": function (e) {
             var currentTime = ytPlayer.getCurrentTime();

@@ -2,6 +2,7 @@
 html, body {
     min-height: 100%;
     height: 100%;
+    overflow-y: hidden;
 }
 
 .sidebar {
@@ -26,10 +27,10 @@ html, body {
 
 .main-content {
     width: 60%;
-    min-width: 500px;
     max-width: 1024px;
     margin: 0 auto;
     min-height: 600px;
+    margin-bottom: 40px;
 }
 
 paper-toolbar.channel-toolbar {
@@ -47,16 +48,12 @@ paper-toolbar.channel-toolbar {
 
 paper-fab.add-video {
     background: #F56A22;
-    position: absolute;
-    right: -28px;
-    top: 472px;
 }
 
-#player-overlay {
-    width: 100%;
-    height: 400px;
+#pages {
     position: absolute;
-    top: 64px;
+    right: 28px;
+    top: 472px;
 }
 
 paper-fab.play-toggle {
@@ -159,4 +156,11 @@ paper-fab.play-toggle {
 #add-video-dialog {
     width: 400px;
     max-width: 100%;
+}
+
+@media only screen and (max-width: 1024px) {
+    .main-content {
+        width: 90%;
+        margin: 0 60px 0 20px;
+    }
 }
