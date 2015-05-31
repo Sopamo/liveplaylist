@@ -155,3 +155,8 @@ paper-fab.play-toggle {
 .top-channels .top-channel img {
     max-width: 100%;
 }
+
+#add-video-dialog {
+    width: 400px;
+    max-width: 100%;
+}

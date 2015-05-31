@@ -1,15 +1,14 @@
 Videos = new Mongo.Collection("videos");
 Channels = new Mongo.Collection("channels");
-player = null;
+ytPlayer = null;
 videoPage = new ReactiveDict;
 videoPage.set("channelSlug","sopamo");
 videoPage.set("currentVideo","");
+currentChannel = null;
 onYouTubeIframeAPIReady = null;
 
 if (Meteor.isClient) {
 
-    
-    
     AccountsTemplates.addField({
         _id: 'username',
         type: 'text',
@@ -91,7 +90,7 @@ if (Meteor.isClient) {
         "submit .add-video": function (event) {
             // This function is called when the new video form is submitted
             
-            var url = event.target.text.value;
+            var url = $("#add-video-content").val();
 
             var params = getQueryParams(url);
             
@@ -102,27 +101,29 @@ if (Meteor.isClient) {
             });
 
             // Clear form
-            event.target.text.value = "";
+            $("#add-video-content").val("");
 
             // Prevent default form submit
             return false;
         },
         "click .add-video" : function(e) {
-            console.log("click");
+            $("#add-video-dialog").get(0).open();
+        },
+        "iron-overlay-closed #add-video-dialog": function(e) {
+            if(e.originalEvent.detail.confirmed === true) {
+                $(".add-video").trigger("submit");
+            }
         },
         "click .play-toggle": function (e) {
-            var currentTime = player.getCurrentTime();
+            var currentTime = ytPlayer.getCurrentTime();
             $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
-            if(player.getPlayerState() != 1) {
+            if(ytPlayer.getPlayerState() != 1) {
                 // Not playing, start the video
                 Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, currentTime);
             } else {
                 // Playing, now pause
                 Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 2, currentTime);
             }
-        },
-        "click .open-navigation": function (e) {
-            console.log("foo");
         },
         "submit .channel-select": function(event) {
             // This function is called when a new channel is selected
@@ -173,7 +174,7 @@ if (Meteor.isClient) {
 
                 currentVideo = channel.active;
 
-                player = new YT.Player("player", {
+                ytPlayer = new YT.Player("player", {
                     height: "400",
                     width: "600",
 
@@ -195,29 +196,32 @@ if (Meteor.isClient) {
 
                             // YouTube is ready, setup the channel listener
                             Tracker.autorun(function () {
-                                var c = Channels.findOne({
+                                currentChannel = Channels.findOne({
                                     "slug": videoPage.get("channelSlug")
                                 });
 
-                                if (player != null && player.loadVideoById && c) {
-                                    if (currentVideo != c.active) {
+                                if (ytPlayer != null && ytPlayer.loadVideoById && currentChannel) {
+                                    if (currentVideo != currentChannel.active) {
                                         // Play the active video if it is not the one already playing
-                                        currentVideo = c.active;
-                                        player.loadVideoById(c.active, 0);
+                                        currentVideo = currentChannel.active;
+                                        ytPlayer.loadVideoById(currentChannel.active, 0);
                                     }
 
-                                    var currentTime = c.currentTime + ((new Date().getTime() / 1000) - c.currentTimeUpdated);
+                                    var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);
 
                                     // Check which state we have
-                                    if (c.status == 1) {
+                                    if (currentChannel.status == 1) {
+                                        
                                         // We are now playing the video but it is the same video like before. Go to the given position in the video.
-
-                                        player.seekTo(currentTime, true);
-                                        player.playVideo();
+                                        ytPlayer.seekTo(currentTime, true);
+                                        ytPlayer.playVideo();
                                         $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
-                                    } else if (c.status == 2) {
-                                        player.seekTo(currentTime, true);
-                                        player.pauseVideo();
+                                        
+                                    } else if (currentChannel.status == 2) {
+                                        
+                                        // We have to stop the video
+                                        ytPlayer.seekTo(currentTime, true);
+                                        ytPlayer.pauseVideo();
                                         $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
                                     }
                                 }
@@ -231,8 +235,8 @@ if (Meteor.isClient) {
                             // Also setup the progress bar update
                             window.setInterval(function () {
                                 // Only update the progress bar when we are not currently dragging it and if the player is playing
-                                if (!dragActive && player.getPlayerState() == 1) {
-                                    var percentage = player.getCurrentTime() / player.getDuration();
+                                if (!dragActive && ytPlayer.getPlayerState() == 1) {
+                                    var percentage = ytPlayer.getCurrentTime() / ytPlayer.getDuration();
                                     $(".player-progress").attr("value", percentage * 100);
                                 }
                             }, 1000);
@@ -252,20 +256,37 @@ if (Meteor.isClient) {
                                 var percentage = e.layerX / e.target.clientWidth;
                                 $(".player-progress").attr("value", percentage * 100);
                                 $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
-                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * player.getDuration());
+                                Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * ytPlayer.getDuration());
                             }, false);
                         },
                         onStateChange: function (event) {
                             switch (event.data) {
                                 case 0: // Ended
                                     // Start next video
-                                    //Meteor.call("setVideoStatus", videoPage.get("channelSlug"), event.data, 0);
+                                    startNextVideo();
                                     break;
                                 case 1: // Now playing
+                                    if(currentChannel.status == 2) {
+                                        // The user clicked the video to play the video. This event didn't occur because of a meteor sync.
+                                        // Tell the server to play the video
+                                        var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);
+                                        Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, currentTime);
+                                        $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
+                                    }
                                     break;
                                 case 2: // Paused
+                                    if (currentChannel.status == 1) {
+                                        // The user clicked the video to pause the video. This event didn't occur because of a meteor sync.
+                                        // Tell the server to pause the video
+                                        var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);
+                                        Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 2, currentTime);
+                                        $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
+                                    }
                                     break;
                             }
+                        },
+                        onError: function() {
+                            startNextVideo();
                         }
                     }
                 });
@@ -279,6 +300,22 @@ if (Meteor.isClient) {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         
         
+    }
+    
+    function startNextVideo() {
+        var $nextVideo = $(".video-entry.active").next();
+        if (!$nextVideo.length) {
+            $nextVideo = $(".video-entry:first");
+        }
+        // Already cue the next video
+        ytPlayer.cueVideoById($nextVideo.data("videoid"));
+        Meteor.call('changeVideo', videoPage.get("channelSlug"), $nextVideo.data("videoid"), function (error, result) {
+            if (error) {
+                console.log(error);
+                alert("Couldn't change video :(");
+            }
+            Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, 0);
+        });
     }
 
     function getQueryParams(qs) {

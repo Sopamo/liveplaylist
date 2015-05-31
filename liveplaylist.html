@@ -19,6 +19,9 @@
     <link rel="import" href="/bower_components/paper-drawer-panel/paper-drawer-panel.html">
     <link rel="import" href="/bower_components/paper-progress/paper-progress.html">
     <link rel="import" href="/bower_components/paper-ripple/paper-ripple.html">
+    <link rel="import" href="/bower_components/neon-animation/animations/scale-up-animation.html">
+    <link rel="import" href="/bower_components/neon-animation/animations/scale-down-animation.html">
+    <link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
 </head>
 
 <body class="">
@@ -57,7 +60,6 @@
 
                         <div id="player"></div>
                         <paper-progress value="0" class="player-progress"></paper-progress>
-                        <div id="player-overlay"></div>
                         <ul class="video-list">
                             {{#each videos}}
                             {{> video}}
@@ -70,6 +72,21 @@
             </paper-header-panel>
         </paper-drawer-panel>
     </div>
+    
+    
+    <paper-dialog id="add-video-dialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+        <h2>Add a YouTube video</h2>
+
+        <form class="add-video">
+            <input type="text" id="add-video-content" class="form-control input-lg" placeholder="Paste a YouTube URL and hit enter" required/>
+        </form>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>Add video</paper-button>
+        </div>
+    </paper-dialog>
+    
+    
 </template>
 
 <template name="topChannel">
