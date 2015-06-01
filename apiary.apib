@@ -37,6 +37,7 @@ A channel has the following attributes:
  + 5 (video cued)
 + currentTime - The current position of the playing video (in ms). The real currentTime is: currentTime + (now - currentTimeUpdated)
 + currentTimeUpdated - The time when the last status change was registered. 
++ activeUsers - The amount of users who are currently subscribing to this channel
 
 
 # Videos
@@ -62,7 +63,8 @@ A video has the following attributes:
                 "active": "IBH4g_ua5es",
                 "currentStatus": 1,
                 "currentTime": 0,
-                "currentTimeUpdated": 1429615671
+                "currentTimeUpdated": 1429615671,
+                "activeUsers": 5
             }
         ]
 
@@ -82,7 +84,8 @@ A video has the following attributes:
             "active": "IBH4g_ua5es",
             "currentStatus": 1,
             "currentTime": 0,
-            "currentTimeUpdated": 1429615671
+            "currentTimeUpdated": 1429615671,
+            "activeUsers": 5
         }
         
 ## Get all videos from a channel by its slug [/channelVideos/{channelSlug}]
