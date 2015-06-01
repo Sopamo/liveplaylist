@@ -39,13 +39,9 @@
         <paper-drawer-panel right-drawer drawer-width="300px">
             <paper-material drawer elevation="5">
                 <div class="chat-wrapper">
-                    <ul class="chat-messages">
-                        {{#each currentChannel.messages}}
-                            <li>
-                                {{name}}: {{message}}
-                            </li>
-                        {{/each}}
-                    </ul>
+                    {{#with currentChannel}}
+                        {{> chat}}
+                    {{/with}}
                     <form class="chat-form">
                         <input type="text" id="chat-message" class="form-control input-lg" placeholder="What's on your mind?" autocomplete="off">
                     </form>
@@ -130,4 +126,18 @@
     <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
         {{title}}
     </li>
+</template>
+
+<template name="chat">
+    <ul class="chat-messages">
+        {{#each messages}}
+            {{> chatmessage}}
+        {{/each}}
+    </ul>
+</template>
+
+<template name="chatmessage">
+        <li>
+            {{name}}: {{message}}
+        </li>
 </template>

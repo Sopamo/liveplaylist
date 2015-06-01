@@ -87,6 +87,15 @@ if (Meteor.isClient) {
             return ytid == channel.active;
         }
     });
+    
+    Template.chatmessage.rendered = function () {
+        $('.chat-messages').scrollTop($('.chat-messages').prop("scrollHeight"));
+    };
+    Template.chat.rendered = function () {
+        setTimeout(function() {
+            $('.chat-messages').scrollTop($('.chat-messages').prop("scrollHeight"));
+        },1000);
+    };
 
     Template.videolist.events({
         // 'change' is the event emitted by the component
