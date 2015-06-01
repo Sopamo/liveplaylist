@@ -63,6 +63,12 @@ if (Meteor.isClient) {
         channelSlug: function() {
             return videoPage.get("channelSlug");
         },
+        currentChannel: function () {
+            var c = Channels.findOne({
+                "slug": videoPage.get("channelSlug")
+            });
+            return c;
+        },
         topChannels: function () {
             return Channels.find();
         },
@@ -86,6 +92,11 @@ if (Meteor.isClient) {
         // 'change' is the event emitted by the component
         'change #video-menu': function (e, template) {
             console.log(e.target.value);
+        },
+        "submit .chat-form": function() {
+            Meteor.call("addMessage",videoPage.get("channelSlug"),$("#chat-message").val());
+            $("#chat-message").val("");
+            return false;
         },
         "submit .add-video": function (event) {
             // This function is called when the new video form is submitted
@@ -308,6 +319,7 @@ if (Meteor.isClient) {
         if (!$nextVideo.length) {
             $nextVideo = $(".video-entry:first");
         }
+        if(!$nextVideo.length) return;
         // Already cue the next video
         ytPlayer.cueVideoById($nextVideo.data("videoid"));
         Meteor.call('changeVideo', videoPage.get("channelSlug"), $nextVideo.data("videoid"), function (error, result) {
@@ -356,7 +368,9 @@ if (Meteor.isServer) {
                 active:"IBH4g_ua5es",
                 currentStatus:1,
                 currentTime:0,
-                currentTimeUpdated: 1429615671
+                currentTimeUpdated: 1429615671,
+                activeUsers: 0,
+                messages: []
             });
         }
     });
@@ -371,9 +385,42 @@ if (Meteor.isServer) {
     });
 
     Meteor.publish('channel', function (channelSlug) {
-        return Channels.find({
+        
+        // Increase the active user by one
+        try {
+            Channels.update(
+                {
+                    slug: channelSlug
+                }, {
+                    $inc: {
+                        "activeUsers": 1
+                    }
+                });
+        } catch(e) {
+            Channels.update(
+                {
+                    slug: channelSlug
+                }, {
+                    $set: {
+                        "activeUsers": 1
+                    }
+                });
+        }
+        this.onStop(function () {
+            Channels.update(
+                {
+                    slug: channelSlug
+                }, {
+                    $inc: {
+                        "activeUsers": -1
+                    }
+                });
+        });
+
+        var channel = Channels.find({
             slug: channelSlug
         });
+        return channel;
     });
     
     Meteor.publish('channelVideos', function(channelSlug) {
@@ -457,6 +504,77 @@ if (Meteor.isServer) {
                 console.log('Failed to bind environment');
             }));
             return true;
+        },
+        addMessage: function (channelSlug, message) {
+            var usernames = [
+                    "Superninja",
+                    "Banana",
+                    "Mystical Fighter",
+                    "Mustache",
+                    "Coffee King",
+                    "Tie Wing Fighter",
+                    "Giant Panda",
+                    "French Press",
+                    "Dadadada Batman",
+                    "Pumpkin",
+                    "Flash",
+                    "Cupperjonas98",
+                    "Steve Jobs",
+                    "xXKillerBossXx",
+                    "Alcatsone",
+                    "#hastag",
+                    "Glutton",
+                    "Horst Dieter",
+                    "Urban Sniper King",
+                    "VeryWowGuy",
+                    "Doge",
+                    "Quicksc0per",
+                    "ApplePwner",
+                    "Unicorn",
+                    "XboxFanboy",
+                    "Laz0rbeams",
+                    "Cake",
+                    "BouncyBall",
+                    "PwnSkillz",
+                    "Skillz0r",
+                    "Pillow",
+                    "FrenchPress",
+                    "BillyGates",
+                    "FireFighter",
+                    "Apple I",
+                    "JellyFish",
+                    "H4ckintosh",
+                    "Commodore",
+                    "FacePlant",
+                    "Wallh4xx0r",
+                    "ARAM",
+                    "A1mB0t"
+            ];
+            var username;
+            if(Meteor.userId() == null) {
+                var ip = this.connection.clientAddress; 
+                var userIndex = parseInt(ip.replace(/\./g,"")) % usernames.length;
+                username = usernames[userIndex];
+            } else {
+                username = Meteor.user().username || Meteor.user().profile.name;    
+            }
+            message = htmlEntities(message);
+            Channels.update({
+                        "slug": channelSlug
+                    },
+                    {
+                        '$push': {
+                            "messages": {
+                                name: username,
+                                message: message
+                            }
+                        }
+            });
+                
+            return true;
         }
     });
+    function htmlEntities(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 }

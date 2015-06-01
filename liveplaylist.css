@@ -2,7 +2,6 @@
 html, body {
     min-height: 100%;
     height: 100%;
-    overflow-y: hidden;
 }
 
 .sidebar {
@@ -163,4 +162,31 @@ paper-fab.play-toggle {
         width: 90%;
         margin: 0 60px 0 20px;
     }
+}
+
+.chat-messages {
+    padding: 0;
+    margin: 0;
+    overflow-y: scroll;
+    height: 90%;
+}
+
+.chat-messages li {
+    display: block;
+    width: 100%;
+    margin: 0 0 20px 0;
+    padding: 10px;
+    background: #f3f3f3;
+    border-radius: 5px;
+    word-wrap: break-word;
+    overflow-x: hidden;
+}
+
+.chat-wrapper {
+    padding: 10px;
+    height: 100%;
+}
+
+#chat-message {
+    margin-top: 10px;
 }
