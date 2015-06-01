@@ -38,6 +38,7 @@ A channel has the following attributes:
 + currentTime - The current position of the playing video (in ms). The real currentTime is: currentTime + (now - currentTimeUpdated)
 + currentTimeUpdated - The time when the last status change was registered. 
 + activeUsers - The amount of users who are currently subscribing to this channel
++ messages - The chat messages
 
 
 # Videos
@@ -85,7 +86,14 @@ A video has the following attributes:
             "currentStatus": 1,
             "currentTime": 0,
             "currentTimeUpdated": 1429615671,
-            "activeUsers": 5
+            "activeUsers": 5,
+            "messages": [
+                {
+                    name: "Mr. Awesome",
+                    message: "Hello :)"
+                },
+                ...
+            ]
         }
         
 ## Get all videos from a channel by its slug [/channelVideos/{channelSlug}]
