@@ -151,6 +151,19 @@ A video has the following attributes:
 
 + Response 200(boolean)
 
+## Add a chat message to a channel [/addMessage/{channelSlug}/{message}]
+
+The server takes care of assigning a username if the user is not logged in. Otherwise the Name of the logged in user will be used.
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The slug of the channel you want to change
+    + message (required, string, `Hello :)`)
+        The message you want to send
+
+### addMessage [POST]
+
++ Response 200(boolean)
 
 
 
