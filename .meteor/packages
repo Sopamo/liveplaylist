@@ -16,3 +16,4 @@ useraccounts:core
 accounts-password
 useraccounts:bootstrap
 service-configuration
+meteorhacks:kadira

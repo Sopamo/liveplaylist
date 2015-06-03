@@ -559,13 +559,14 @@ if (Meteor.isServer) {
                     "ARAM",
                     "A1mB0t"
             ];
-            var username;
-            if(Meteor.userId() == null) {
-                var ip = this.connection.clientAddress; 
-                var userIndex = parseInt(ip.replace(/\./g,"")) % usernames.length;
-                username = usernames[userIndex];
-            } else {
+            var username = null;
+            if(Meteor.userId()) {
                 username = Meteor.user().username || Meteor.user().profile.name;    
+            }
+            if(!username) {
+                var ip = this.connection.clientAddress;
+                var userIndex = parseInt(ip.replace(/\./g, "")) % usernames.length;
+                username = usernames[userIndex];
             }
             message = htmlEntities(message);
             Channels.update({
