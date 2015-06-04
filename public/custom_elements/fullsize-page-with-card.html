@@ -30,10 +30,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         .card {
             position: relative;
-            margin: -50px -400px 0;
-            width: 400px;
+            margin: -150px -600px 0;
+            width: 600px;
             background: white;
-            padding: 10px 40px 40px 40px;
+            padding: 30px;
             border-radius: 5px;
         }
 
@@ -44,21 +44,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div id="fixed" on-click="closePage" class="fixed"></div>
 
         <paper-material id="card" class="card" elevation="3">
-            <h2>Add a YouTube video</h2>
-
-            <form class="add-video">
-                <input type="text" id="add-video-content" class="form-control input-lg" placeholder="Paste a YouTube URL and hit enter" required/>
-            </form>
-            <div class="buttons" style="text-align:right;margin-top: 20px;">
-                <paper-button raised id="add-video-button">Add video</paper-button>
-            </div>
+            <content></content>
         </paper-material>
     </template>
 
 </dom-module>
 
 <script>
-
     Polymer({
 
         is: 'fullsize-page-with-card',
@@ -69,6 +61,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
         closePage: function() {
             $("#pages").get(0).selected = 0;
+        },
+        
+        domReady: function() {
+             
         },
 
         properties: {
