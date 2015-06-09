@@ -98,6 +98,11 @@ Meteor.methods({
 
         return true;
     },
+    getTopChannels: function () {
+        return Channels.find({active: {$ne: ""}},{
+            limit: 5
+        }).fetch();
+    },
     setVideoStatus: function (channelSlug, status, time) {
         // Check argument types
         check(channelSlug, String);
@@ -131,6 +136,9 @@ Meteor.methods({
             });
         }
         return channel;
+    },
+    register: function(username,email,password) {
+        return Accounts.createUser({username:username,email: email, password: password});
     },
     addVideo: function (channelSlug, videoId) {
 
