@@ -141,7 +141,6 @@ Meteor.methods({
         return Accounts.createUser({username:username,email: email, password: password});
     },
     addVideo: function (channelSlug, videoId) {
-
         YoutubeApi.videos.list({
             part: "contentDetails,snippet",
             id: videoId
@@ -161,6 +160,12 @@ Meteor.methods({
             console.log('Failed to bind environment');
         }));
         return true;
+    },
+    removeVideo: function(channelSlug, videoId) {
+        Videos.remove({
+            channel: channelSlug,
+            ytid: videoId
+        });
     },
     addMessage: function (channelSlug, message) {
         var usernames = [
