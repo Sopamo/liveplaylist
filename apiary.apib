@@ -159,6 +159,19 @@ A video has the following attributes:
 
 + Response 200(boolean)
 
+## Remove a video from a channel [/removeVideo/{channelSlug}/{videoId}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The slug of the channel you want to change
+    + videoId (required, string, `IBH4g_ua5es`)
+        The YouTube id of the video you want to remove
+
+### removeVideo [POST]
+
++ Response 200(boolean)
+
+
 ## Add a chat message to a channel [/addMessage/{channelSlug}/{message}]
 
 The server takes care of assigning a username if the user is not logged in. Otherwise the Name of the logged in user will be used.
