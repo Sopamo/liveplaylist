@@ -20,7 +20,18 @@ Meteor.startup(function () {
             currentTime: 0,
             currentTimeUpdated: 1429615671,
             activeUsers: 0,
-            messages: []
+            messages: [],
+            members: [],
+            moderators: [],
+            owner: null
+        });
+    }
+    if (Rights.find().count() === 0) {
+        Rights.insert({
+            channelSlug: "sopamo",
+            level: "guest", // Can be guest|member|moderator
+            right: "removeVideo", // Can be viewChannel|addVideo|removeVideo|changeActiveVideo|addMessage
+            value: false
         });
     }
 });
@@ -71,6 +82,12 @@ Meteor.publish('channel', function (channelSlug) {
         slug: channelSlug
     });
     return channel;
+});
+
+Meteor.publish("channelRights", function(channelSlug) {
+    return Rights.find({
+        channelSlug: channelSlug
+    });
 });
 
 Meteor.publish('channelVideos', function (channelSlug) {
@@ -235,8 +252,91 @@ Meteor.methods({
                 });
 
         return true;
+    },
+    setRight: function(channelSlug,level,right,value) {
+        
+        // Check for admin rights
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        if(getLevel(channel) !== "owner") {
+            return false;
+        }
+        
+        // Set the new right
+        try {
+            Rights.upsert({
+                "channelSlug": channelSlug,
+                "level": level,
+                "right": right
+            }, {
+                "value": value
+            });
+        } catch(e) {
+            return false;
+        }
+        
+        return true;
+    },
+    getRights: function(channelSlug) {
+        
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        
+        var level = getLevel(channel);
+        
+        return Rights.find({
+            channelSlug: channelSlug,
+            level: level
+        }).fetch();
+    },
+    claim: function(channelSlug) {
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        var ownedChannels = Channels.find({
+            "owner": Meteor.userId()
+        }).count();
+        // Check if the channel is not already claimed and that the user can claim a new channel
+        if(!channel.owner && ownedChannels <= 5) {
+            Channels.update({
+                slug: channelSlug
+            }, {
+                owner: Meteor.userId()
+            });
+            return true;
+        }
+        return false;
+    },
+    getClaimedChannels: function() {
+        return Channels.find({
+            owner: Meteor.userId()
+        }).fetch();
     }
 });
+
+function getLevel(channel) {
+    if(!Meteor.userId()) {
+        return 'guest';
+    }
+    if(channel.owner == Meteor.userId()) {
+        return 'owner';
+    }
+    if (Object.prototype.toString.call(channel.members) === '[object Array]' && channel.members.indexOf(Meteor.userId()) !== -1) {
+        return 'member';
+    }
+    if (Object.prototype.toString.call(channel.moderators) === '[object Array]' && channel.moderators.indexOf(Meteor.userId()) !== -1) {
+        return 'moderator';
+    }
+
+    return 'guest';
+}
+
+function hasRight(channelSlug,right) {
+    
+}
+
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

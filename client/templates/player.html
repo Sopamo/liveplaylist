@@ -15,7 +15,6 @@
                 <paper-drawer-panel responsive-width="1024px">
                     <paper-material class="sidebar" drawer elevation="5">
                         <h2>Your Account</h2>
-
                         <div class="account-data">
                             {{#if currentUser}}
                             Welcome {{ username }}<br>
@@ -37,10 +36,13 @@
                             <paper-material elevation="5">
 
                                 <!-- Toolbar -->
-                                <paper-toolbar class="channel-toolbar">
+                                <paper-toolbar class="channel-toolbar" style="width: 100%;">
                                     <paper-icon-button class="open-navigation" paper-drawer-toggle icon="menu"></paper-icon-button>
-                                    <div title>{{ channelSlug }}</div>
-                                    <span>{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
+                                    <div title>
+                                        {{ channelSlug }}
+                                        <img src="/img/ic_action_settings.png" class="channel-settings" width="24" height="24" alt="Channel settings">
+                                    </div>
+                                    <span style="margin-left: auto;">{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
                                 </paper-toolbar>
                                 
                                 <!-- Player -->
@@ -86,6 +88,39 @@
             </div>
         </paper-drawer-panel>
     </div>
+    <paper-dialog id="rights-management">
+        <h2>Manage channel rights</h2>
+        <paper-dialog-scrollable>
+            <section class="rights-list">
+                <h1>Guests</h1>
+                <paper-checkbox class="right-checkbox">View and listen to channel</paper-checkbox> 
+                <paper-checkbox class="right-checkbox">Add new videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Delete videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Set the active video and start / pause playback</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Use channel chat</paper-checkbox>
+            </section>
+            <section class="rights-list">
+                <h1>Members</h1>
+                <paper-checkbox class="right-checkbox">View and listen to channel</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Add new videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Delete videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Set the active video and start / pause playback</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Use channel chat</paper-checkbox>
+            </section>
+            <section class="rights-list">
+                <h1>Moderators</h1>
+                <paper-checkbox class="right-checkbox">View and listen to channel</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Add new videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Delete videos</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Set the active video and start / pause playback</paper-checkbox>
+                <paper-checkbox class="right-checkbox">Use channel chat</paper-checkbox>
+            </section>
+        </paper-dialog-scrollable>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Cancel</paper-button>
+            <paper-button dialog-confirm>Accept</paper-button>
+        </div>
+    </paper-dialog>
 </template>
 
 <template name="topChannel">

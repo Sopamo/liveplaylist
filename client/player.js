@@ -132,6 +132,10 @@ Template.videolist.events({
         $("#chat-message").val("");
         return false;
     },
+    "click .channel-settings": function(event) {
+        console.log(1);
+        document.getElementById("rights-management").open();
+    },
     "submit .add-video": function (event) {
         // This function is called when the new video form is submitted
 
