@@ -3,6 +3,7 @@ videoPage = new ReactiveDict;
 videoPage.set("channelSlug", "sopamo");
 videoPage.set("currentVideo", "");
 videoPage.set("youtubeResults", []);
+videoPage.set("channelMembers", []);
 currentChannel = null;
 onYouTubeIframeAPIReady = null;
 
@@ -13,9 +14,12 @@ Router.route('/c/:_channelSlug', function () {
         Meteor.subscribe("channelVideos", videoPage.get("channelSlug"));
         Meteor.subscribe("channel", videoPage.get("channelSlug"));
         Meteor.subscribe("channelRights", videoPage.get("channelSlug"));
+        updateMemberList();
+        
     });
 
     initalizeYoutube();
+    
 
     this.render('videolist');
 });
@@ -25,20 +29,15 @@ AccountsTemplates.addField({
     type: 'text',
     required: true,
     func: function (value) {
-        if (Meteor.isClient) {
-            console.log("Validating username...");
-            var self = this;
-            Meteor.call("userExists", value, function (err, userExists) {
-                if (!userExists)
-                    self.setSuccess();
-                else
-                    self.setError(userExists);
-                self.setValidating(false);
-            });
-            return;
-        }
-        // Server
-        return Meteor.call("userExists", value);
+        var self = this;
+        Meteor.call("userExists", value, function (err, userExists) {
+            if (!userExists)
+                self.setSuccess();
+            else
+                self.setError(userExists);
+            self.setValidating(false);
+        });
+        return;
     }
 });
 
@@ -84,6 +83,9 @@ Template.videolist.helpers({
     },
     isChecked: function (rights,level,right) {
         return rights[level][right];
+    },
+    members: function() {
+        return videoPage.get("channelMembers");
     }
 });
 Template.video.helpers({
@@ -249,6 +251,23 @@ Template.videolist.events({
                 }
             });
         }
+    },
+    "change .member-moderator": function(e) {
+        
+        var action;
+        if(e.target.checked) {
+            action = "addChannelModerator";
+        } else {
+            action = "addChannelMember";
+        }
+        Meteor.call(action,videoPage.get("channelSlug"), e.target.dataset.username);
+    },
+    "click #add-user-button": function() {
+        
+        Meteor.call("addChannelMember", videoPage.get("channelSlug"),document.getElementById("add-user-input").value, function(err,data) {
+            updateMemberList();
+        });
+        document.getElementById("add-user-input").value = "";
     }
 });
 
@@ -431,4 +450,10 @@ function getQueryParams(qs) {
     }
 
     return params;
+}
+
+function updateMemberList() {
+    Meteor.call("getChannelMembers", videoPage.get("channelSlug"), function (err, members) {
+        videoPage.set("channelMembers", members);
+    });
 }

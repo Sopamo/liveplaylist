@@ -40,7 +40,9 @@
                                     <paper-icon-button class="open-navigation" paper-drawer-toggle icon="menu"></paper-icon-button>
                                     <div title>
                                         {{ channelSlug }}
+                                        {{#if currentUser}}
                                         <img src="/img/ic_action_settings.png" class="channel-settings" width="24" height="24" alt="Channel settings">
+                                        {{/if}}
                                     </div>
                                     <span style="margin-left: auto;">{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
                                 </paper-toolbar>
@@ -88,40 +90,73 @@
             </div>
         </paper-drawer-panel>
     </div>
-    <paper-dialog id="rights-management">
-        <h2>Manage channel rights</h2>
+    <paper-dialog id="rights-management"
+                  entry-animation="scale-up-animation"
+                  exit-animation="scale-down-animation">
         <paper-dialog-scrollable>
-            <section class="rights-list">
-                <h1>Guests</h1>
-                <paper-checkbox data-level="guest" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'guest' 'viewChannel' }}">View and listen to channel</paper-checkbox> 
-                <paper-checkbox data-level="guest" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'addVideo' }}">Add new videos</paper-checkbox>
-                <paper-checkbox data-level="guest" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'removeVideo' }}">Delete videos</paper-checkbox>
-                <paper-checkbox data-level="guest" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
-                <paper-checkbox data-level="guest" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'guest' 'addMessage' }}">Use channel chat</paper-checkbox>
-            </section>
-            <section class="rights-list">
-                <h1>Members</h1>
-                <paper-checkbox data-level="member" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'member' 'viewChannel' }}">View and listen to channel</paper-checkbox>
-                <paper-checkbox data-level="member" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'addVideo' }}">Add new videos</paper-checkbox>
-                <paper-checkbox data-level="member" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'removeVideo' }}">Delete videos</paper-checkbox>
-                <paper-checkbox data-level="member" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
-                <paper-checkbox data-level="member" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'member' 'addMessage' }}">Use channel chat</paper-checkbox>
-            </section>
-            <section class="rights-list">
-                <h1>Moderators</h1>
-                <paper-checkbox data-level="moderator" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'viewChannel' }}">View and listen to channel</paper-checkbox>
-                <paper-checkbox data-level="moderator" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'addVideo' }}">Add new videos</paper-checkbox>
-                <paper-checkbox data-level="moderator" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'removeVideo' }}">Delete videos</paper-checkbox>
-                <paper-checkbox data-level="moderator" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
-                <paper-checkbox data-level="moderator" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'addMessage' }}">Use channel chat</paper-checkbox>
-            </section>
+            <div class="row" style="margin: 0 20px;">
+                <div class="col-md-6">
+                    <h2>Channel rights</h2>
+                    <section class="rights-list">
+                        <h1>Guests</h1>
+                        <paper-checkbox data-level="guest" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'guest' 'viewChannel' }}">View and listen to channel</paper-checkbox> 
+                        <paper-checkbox data-level="guest" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'addVideo' }}">Add new videos</paper-checkbox>
+                        <paper-checkbox data-level="guest" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'removeVideo' }}">Delete videos</paper-checkbox>
+                        <paper-checkbox data-level="guest" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
+                        <paper-checkbox data-level="guest" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'guest' 'addMessage' }}">Use channel chat</paper-checkbox>
+                    </section>
+                    <section class="rights-list">
+                        <h1>Members</h1>
+                        <paper-checkbox data-level="member" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'member' 'viewChannel' }}">View and listen to channel</paper-checkbox>
+                        <paper-checkbox data-level="member" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'addVideo' }}">Add new videos</paper-checkbox>
+                        <paper-checkbox data-level="member" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'removeVideo' }}">Delete videos</paper-checkbox>
+                        <paper-checkbox data-level="member" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'member' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
+                        <paper-checkbox data-level="member" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'member' 'addMessage' }}">Use channel chat</paper-checkbox>
+                    </section>
+                    <section class="rights-list">
+                        <h1>Moderators</h1>
+                        <paper-checkbox data-level="moderator" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'viewChannel' }}">View and listen to channel</paper-checkbox>
+                        <paper-checkbox data-level="moderator" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'addVideo' }}">Add new videos</paper-checkbox>
+                        <paper-checkbox data-level="moderator" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'removeVideo' }}">Delete videos</paper-checkbox>
+                        <paper-checkbox data-level="moderator" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
+                        <paper-checkbox data-level="moderator" data-right="addMessage" class="right-checkbox" checked="{{ isChecked rights 'moderator' 'addMessage' }}">Use channel chat</paper-checkbox>
+                    </section>
+                </div>
+                <div class="col-md-6">
+                    <h2>Channel members</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Moderator</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each members}}
+                            {{> member}}
+                            {{/each}}
+                            <tr>
+                                <td>
+                                    <paper-input placeholder="Add a new User" style="margin-top: -20px;" id="add-user-input"></paper-input>
+                                </td>
+                                <td>
+                                    <paper-button raised style="background:green;color:white" id="add-user-button">Add</paper-button>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
         </paper-dialog-scrollable>
         <div class="buttons">
             <paper-button dialog-dismiss>Cancel</paper-button>
             <paper-button raised style="background: green;color:white;" dialog-confirm>Save</paper-button>
         </div>
     </paper-dialog>
-    <paper-dialog id="claim-channel">
+    <paper-dialog id="claim-channel" 
+                  entry-animation="scale-up-animation"
+                  exit-animation="scale-down-animation">
         <h2>Claim this channel</h2>
         <paper-dialog-scrollable>
             <p class="lead" style="padding: 0 20px;">You do not own this channel yet, but you can claim it. It's free!</p>
@@ -196,4 +231,16 @@
             {{title}}
         </div>
     </div>
+</template>
+
+<template name="member">
+    <tr>
+        <td>
+            {{username}}    
+        </td>
+        <td>
+            <paper-checkbox class="member-moderator" data-username="{{username}}" checked="{{moderator}}"></paper-checkbox>
+        </td>
+        
+    </tr>
 </template>

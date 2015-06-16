@@ -333,6 +333,128 @@ Meteor.methods({
         return Channels.find({
             owner: Meteor.userId()
         }).fetch();
+    },
+    addChannelMember: function(channelSlug, username) {
+        if (!Meteor.userId()) {
+            return false;
+        }
+        // Check for admin rights
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        if (getLevel(channel) !== "owner") {
+            return false;
+        }
+
+        // Fetch the user to add as member
+        var user = Meteor.users.findOne({
+            username: username
+        });
+        if(!user) {
+            return false;
+        }
+        
+        // Check if the user is a moderator and remove him from the members array
+        if(channel.moderators && channel.moderators.indexOf(user._id) !== -1) {
+            Channels.update({
+                slug: channelSlug
+            }, {
+                $pull: {
+                    moderators: user._id
+                }
+            });
+        }
+        
+        return Channels.update({
+            slug: channelSlug
+        }, {
+            $addToSet: {
+                members: user._id
+            }
+        });
+    },
+    addChannelModerator: function (channelSlug, username) {
+        if (!Meteor.userId()) {
+            return false;
+        }
+        // Check for admin rights
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        if (getLevel(channel) !== "owner") {
+            return false;
+        }
+
+        // Fetch the user to add as moderator
+        var user = Meteor.users.findOne({
+            username: username
+        });
+        if (!user) {
+            return false;
+        }
+
+        // Check if the user is a member and remove him from the members array
+        if (channel.members && channel.members.indexOf(user._id) !== -1) {
+            Channels.update({
+                slug: channelSlug
+            }, {
+                $pull: {
+                    members: user._id
+                }
+            });
+        }
+
+        return Channels.update({
+            slug: channelSlug
+        }, {
+            $addToSet: {
+                moderators: user._id
+            }
+        });
+    },
+    getChannelMembers: function(channelSlug) {
+        if (!Meteor.userId()) {
+            return false;
+        }
+        // Check for admin rights
+        var channel = Channels.findOne({
+            slug: channelSlug
+        });
+        if (getLevel(channel) !== "owner") {
+            return false;
+        }
+        
+        var members = [];
+        var key;
+        if(channel.moderators) {
+            for (key in channel.moderators) {
+                if(channel.moderators.hasOwnProperty(key)) {
+                    var userid = channel.moderators[key];
+                    var user = Meteor.users.findOne(userid);
+                    if (user) {
+                        members.push({
+                            username: user.username,
+                            moderator: true
+                        });
+                    }
+                }
+            }
+        }
+        if (channel.members) {
+            for (key in channel.members) {
+                if (channel.members.hasOwnProperty(key)) {
+                    var userid = channel.members[key];
+                    var user = Meteor.users.findOne(userid);
+                    if(user) {
+                        members.push({
+                            username: user.username,
+                            moderator: false
+                        });
+                    }
+                }
+            }
+        }
+        return members;
     }
 });
 
