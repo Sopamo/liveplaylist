@@ -237,16 +237,110 @@ The server takes care of assigning a username if the user is not logged in. Othe
 
 # Group Rights & User Management
 
-## Subscribe current users channel rights [/channelRights/{channelSlug}]
+## Subscribe to current users channel rights [/channelRights/{channelSlug}]
 
 + Parameters
     + channelSlug (required, string, `rock-classics`)
         The channel for which you want to get the rights for
 
-### register [POST]
+### channelRights [GET]
+
++ Response 200(boolean)
+
+## Set a right value [/setRight/{channelSlug}/{level}/{right}/{value}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel for which you want to set the right
+    + level (required, string, `guest`)
+        Can be guest, member or moderator
+    + right (required, string, `addVideo`)
+        Can be viewChannel, addVideo, removeVideo, changeActiveVideo or addMessage
+
+### setRight [POST]
+
++ Response 200(boolean)
+
+## Get all rights for a channel. This is not a subscription! [/getRights/{channelSlug}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel for which you want to get all rights for
+
+### getRights [POST]
+
++ Response 200(boolean)
+
+## Let the current user claim a channel [/claim/{channelSlug}]
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel you want to claim
+
+### claim [POST]
 
 + Response 200(boolean)
 
 
+## Get all channels the current user claimed [/getClaimedChannels]
+
+### getClaimedChannels [POST]
+
++ Response 200(boolean)
+
+## Add a channel member. [/addChannelMember/{channelSlug}/{username}]
+
+To revoke moderator rights for a moderator simply call this method as well.
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel you want to add the member to
+    + username (required, string, `Moritur`)
+        The username of the user you want to make a member of this channel
+
+### addChannelMember [POST]
+
++ Response 200(boolean)
+
+## Add a channel moderator. [/addChannelModerator/{channelSlug}/{username}]
+
+To give moderator rights to a member simply call this method as well. 
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel you want to add the member to
+    + username (required, string, `Moritur`)
+        The username of the user you want to make a moderator of this channel
+
+
+### addChannelModerator [POST]
+
++ Response 200(boolean)
+
+## Get all channel members [/getChannelMembers/{channelSlug}]
+
+Click on "getChannelMembers" to see the returned json.
+
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel for which you want to get the members
+
+### getChannelMembers [POST]
+
+
++ Response 200(application/json)
+
+    + Body
+        
+            [ 
+                {
+                    "username": "Moritur",
+                    "moderator": true
+                },
+                {
+                    "username": "Mr. Foobar",
+                    "moderator": false
+                }
+            ]
 
 
