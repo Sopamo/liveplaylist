@@ -50,6 +50,37 @@ A video has the following attributes:
 + channel - The slug of the channel this video belongs to
 + duration - The duration of the video in ISO 8601 format e.g. PT4M13S
 
+# Rights
+
+Each channel has a set of rights. Each right object has the following attributes.
+It is guaranteed, that the combination of channelSlug, level and right is unique. 
+It is not guaranteed to get a right object for each combination of channelSlug, level and right.
+For example you might only get this array for a channel:
+```js
+[
+  {
+    channelSlug: "sopamo",
+    level: "guest",
+    right: "viewChannel",
+    value: true
+  },
+  {
+    channelSlug: "sopamo",
+    level: "moderator",
+    right: "changeActiveVideo",
+    value: true
+  }
+]
+```
+This would allow guests to enter the channel and moderators to select the active video.
+When a right is not defined you should assumed it is set to false.
+These are the attributes each right has:
++ channelSlug - The channel for which this right is effective
++ level - guest|member|moderator Which group of users this right affects
++ right - viewChannel|addVideo|removeVideo|changeActiveVideo|addMessage The right to allow / deny
++ value - boolean true = allow, false = deny
+
+# Group Channel Management
 
 ## Top channels [/topChannels]
 
@@ -186,6 +217,7 @@ The server takes care of assigning a username if the user is not logged in. Othe
 
 + Response 200(boolean)
 
+# Group Authentication
 
 ## Register a new user [/register/{username}/{email}/{password}]
 
@@ -203,8 +235,17 @@ The server takes care of assigning a username if the user is not logged in. Othe
 
 
 
+# Group Rights & User Management
 
+## Subscribe current users channel rights [/channelRights/{channelSlug}]
 
++ Parameters
+    + channelSlug (required, string, `rock-classics`)
+        The channel for which you want to get the rights for
+
+### register [POST]
+
++ Response 200(boolean)
 
 
 
