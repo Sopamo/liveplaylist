@@ -12,6 +12,7 @@ Router.route('/c/:_channelSlug', function () {
     Tracker.autorun(function () {
         Meteor.subscribe("channelVideos", videoPage.get("channelSlug"));
         Meteor.subscribe("channel", videoPage.get("channelSlug"));
+        Meteor.subscribe("channelRights", videoPage.get("channelSlug"));
     });
 
     initalizeYoutube();
@@ -67,6 +68,22 @@ Template.videolist.helpers({
     },
     youtubeResults: function() {
         return videoPage.get("youtubeResults");
+    },
+    rights: function() {
+        var rights = Rights.find({
+            channelSlug: videoPage.get("channelSlug")
+        }).fetch();
+        var data = {};
+        $.each(rights,function(k,right) {
+            if(typeof data[right.level] == "undefined") {
+                data[right.level] = {};
+            }
+            data[right.level][right.right] = right.value;
+        });
+        return data;
+    },
+    isChecked: function (rights,level,right) {
+        return rights[level][right];
     }
 });
 Template.video.helpers({
@@ -133,8 +150,16 @@ Template.videolist.events({
         return false;
     },
     "click .channel-settings": function(event) {
-        console.log(1);
-        document.getElementById("rights-management").open();
+        if(!Meteor.userId()) {
+            return;
+        }
+        if(Meteor.userId() == currentChannel.owner) {
+            document.getElementById("rights-management").open();
+        } else {
+            if(!currentChannel.owner) {
+                document.getElementById("claim-channel").open();
+            }
+        }
     },
     "submit .add-video": function (event) {
         // This function is called when the new video form is submitted
@@ -202,6 +227,27 @@ Template.videolist.events({
     "immediate-value-change .volume-slider": function(e) {
         if (ytPlayer && ytPlayer.setVolume) {
             ytPlayer.setVolume($(".volume-slider").get(0).immediateValue);
+        }
+    },
+    "iron-overlay-closed #rights-management": function(e) {
+        if(document.getElementById("rights-management").closingReason.confirmed === true) {
+            $(".right-checkbox").each(function() {
+                var el = $(this).get(0);
+                Meteor.call("setRight",videoPage.get("channelSlug"),el.dataset.level,el.dataset.right,el.checked, function(e) {
+                    console.log(e);
+                });
+            });
+        }
+    },
+    "iron-overlay-closed #claim-channel": function (e) {
+        if (document.getElementById("claim-channel").closingReason.confirmed === true) {
+            Meteor.call("claim",videoPage.get("channelSlug"),function(e,data) {
+                if(data === true) {
+                    document.querySelector('#channel-claimed').show();
+                } else {
+                    document.querySelector("#channel-claim-error").show();
+                }
+            });
         }
     }
 });

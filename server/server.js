@@ -36,6 +36,7 @@ Meteor.startup(function () {
     }
 });
 
+
 YoutubeApi.authenticate({
     type: 'key',
     key: 'AIzaSyDyrnr-qmqnPrBZwmnMnNnz7uSMSY_XJmM'
@@ -254,6 +255,10 @@ Meteor.methods({
         return true;
     },
     setRight: function(channelSlug,level,right,value) {
+        check(channelSlug, String);
+        check(level, String);
+        check(right, String);
+        check(value, Boolean);
         
         // Check for admin rights
         var channel = Channels.findOne({
@@ -270,15 +275,18 @@ Meteor.methods({
                 "level": level,
                 "right": right
             }, {
-                "value": value
+                $set: {
+                    "value": value    
+                }
             });
         } catch(e) {
             return false;
         }
-        
         return true;
     },
     getRights: function(channelSlug) {
+
+        check(channelSlug, String);
         
         var channel = Channels.findOne({
             slug: channelSlug
@@ -292,24 +300,36 @@ Meteor.methods({
         }).fetch();
     },
     claim: function(channelSlug) {
+
+        check(channelSlug, String);
+        
+        if(!Meteor.userId()) {
+            return null;
+        }
+        
         var channel = Channels.findOne({
             slug: channelSlug
         });
         var ownedChannels = Channels.find({
             "owner": Meteor.userId()
-        }).count();
+        }).fetch();
         // Check if the channel is not already claimed and that the user can claim a new channel
-        if(!channel.owner && ownedChannels <= 5) {
+        if(!channel.owner && ownedChannels < 5) {
             Channels.update({
                 slug: channelSlug
             }, {
-                owner: Meteor.userId()
+                $set: {
+                    owner: Meteor.userId()
+                }
             });
             return true;
         }
         return false;
     },
     getClaimedChannels: function() {
+        if(!Meteor.userId()) {
+            return [];
+        }
         return Channels.find({
             owner: Meteor.userId()
         }).fetch();
