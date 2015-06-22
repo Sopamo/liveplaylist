@@ -16,7 +16,7 @@ Meteor.startup(function () {
             title: "Sopamo",
             slug: "sopamo",
             active: "IBH4g_ua5es",
-            currentStatus: 1,
+            status: 1,
             currentTime: 0,
             currentTimeUpdated: 1429615671,
             activeUsers: 0,
@@ -148,7 +148,7 @@ Meteor.methods({
             channel = Channels.insert({
                 slug: channelSlug,
                 active: "",
-                currentStatus: -1,
+                status: -1,
                 currentTime: 0,
                 currentTimeUpdated: 0
             });
