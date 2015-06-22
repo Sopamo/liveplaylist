@@ -28,7 +28,7 @@ A channel has the following attributes:
 
 + slug - A unique identifier for this channel
 + active - The id of the active YouTube video
-+ currentStatus - One of the YouTube YT.PlayerState indicators. Describes the status of the active video:
++ status - One of the YouTube YT.PlayerState indicators. Describes the status of the active video:
  + -1 (unstarted)
  + 0 (ended)
  + 1 (playing)
@@ -95,7 +95,7 @@ These are the attributes each right has:
                 "title": "Cool rock songs",
                 "slug": "cool-rock-songs",
                 "active": "IBH4g_ua5es",
-                "currentStatus": 1,
+                "status": 1,
                 "currentTime": 0,
                 "currentTimeUpdated": 1429615671,
                 "activeUsers": 5
@@ -116,7 +116,7 @@ These are the attributes each right has:
             "title": "Cool rock songs",
             "slug": "cool-rock-songs",
             "active": "IBH4g_ua5es",
-            "currentStatus": 1,
+            "status": 1,
             "currentTime": 0,
             "currentTimeUpdated": 1429615671,
             "activeUsers": 5,
@@ -126,7 +126,10 @@ These are the attributes each right has:
                     message: "Hello :)"
                 },
                 ...
-            ]
+            ],
+            "owner": "auBAuw7263hHSks37",
+            "members": [],
+            "moderators": []
         }
         
 ## Get all videos from a channel by its slug [/channelVideos/{channelSlug}]
@@ -172,7 +175,7 @@ These are the attributes each right has:
     + channelSlug (required, string, `rock-classics`)
         The slug of the channel you want to change
     + status (required, int, `1`)
-        The new video status, see the currentStatus Attribute of a channel
+        The new video status, see the status attribute of a channel
     + time (required, float, `74.124`)
         The current position in seconds (with 3 decimals) of the video
     
