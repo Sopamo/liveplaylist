@@ -242,7 +242,7 @@ The server takes care of assigning a username if the user is not logged in. Othe
 
 # Group Rights & User Management
 
-## Subscribe to current users channel rights [/channelRights/{channelSlug}]
+## Subscribe to all channel rights [/channelRights/{channelSlug}]
 
 + Parameters
     + channelSlug (required, string, `rock-classics`)
@@ -266,7 +266,7 @@ The server takes care of assigning a username if the user is not logged in. Othe
 
 + Response 200(boolean)
 
-## Get all rights for a channel. This is not a subscription! [/getRights/{channelSlug}]
+## Get all rights for the current user for a channel. This is not a subscription! [/getRights/{channelSlug}]
 
 + Parameters
     + channelSlug (required, string, `rock-classics`)
