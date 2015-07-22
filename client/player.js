@@ -330,14 +330,14 @@ function initalizeYoutube() {
                                 var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);
 
                                 // Check which state we have
-                                if (currentChannel.status == 1) {
+                                if (currentChannel.currentStatus == 1) {
 
                                     // We are now playing the video but it is the same video like before. Go to the given position in the video.
                                     ytPlayer.seekTo(currentTime, true);
                                     ytPlayer.playVideo();
                                     $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
 
-                                } else if (currentChannel.status == 2) {
+                                } else if (currentChannel.currentStatus == 2) {
 
                                     // We have to stop the video
                                     ytPlayer.seekTo(currentTime, true);
@@ -386,7 +386,7 @@ function initalizeYoutube() {
                                 startNextVideo();
                                 break;
                             case 1: // Now playing
-                                if (currentChannel.status == 2) {
+                                if (currentChannel.currentStatus == 2) {
                                     // The user clicked the video to play the video. This event didn't occur because of a meteor sync.
                                     // Tell the server to play the video
                                     var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);
@@ -395,7 +395,7 @@ function initalizeYoutube() {
                                 }
                                 break;
                             case 2: // Paused
-                                if (currentChannel.status == 1) {
+                                if (currentChannel.currentStatus == 1) {
                                     // The user clicked the video to pause the video. This event didn't occur because of a meteor sync.
                                     // Tell the server to pause the video
                                     var currentTime = currentChannel.currentTime + ((new Date().getTime() / 1000) - currentChannel.currentTimeUpdated);

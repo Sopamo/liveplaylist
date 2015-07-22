@@ -16,7 +16,7 @@ Meteor.startup(function () {
             title: "Sopamo",
             slug: "sopamo",
             active: "IBH4g_ua5es",
-            status: 1,
+            currentStatus: 1,
             currentTime: 0,
             currentTimeUpdated: 1429615671,
             activeUsers: 0,
@@ -130,7 +130,7 @@ Meteor.methods({
                     slug: channelSlug
                 }, {
                     $set: {
-                        status: status,
+                        currentStatus: status,
                         currentTime: time,
                         currentTimeUpdated: Math.floor(Date.now() / 1000)
                     }
@@ -148,9 +148,19 @@ Meteor.methods({
             channel = Channels.insert({
                 slug: channelSlug,
                 active: "",
-                status: -1,
+                currentStatus: -1,
                 currentTime: 0,
                 currentTimeUpdated: 0
+            });
+            ["guest","member","moderator"].each(function(level) {
+                ["viewChannel","addVideo","removeVideo","changeActiveVideo","addMessage"].each(function(right) {
+                    Rights.insert({
+                        channelSlug: channelSlug,
+                        level: level,
+                        right: right,
+                        value: true
+                    });
+                });
             });
         }
         return channel;
