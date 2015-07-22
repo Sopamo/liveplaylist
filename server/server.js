@@ -48,6 +48,30 @@ Meteor.publish('topChannels', function () {
 
 Meteor.publish('channel', function (channelSlug) {
 
+    var channel = Channels.find({
+        slug: channelSlug
+    });
+
+    if (!channel) {
+        channel = Channels.insert({
+            slug: channelSlug,
+            active: "",
+            currentStatus: -1,
+            currentTime: 0,
+            currentTimeUpdated: 0
+        });
+        ["guest", "member", "moderator"].forEach(function (level) {
+            ["viewChannel", "addVideo", "removeVideo", "changeActiveVideo", "addMessage"].forEach(function (right) {
+                Rights.insert({
+                    channelSlug: channelSlug,
+                    level: level,
+                    right: right,
+                    value: true
+                });
+            });
+        });
+    }
+
     // Increase the active user by one
     try {
         Channels.update(
@@ -78,10 +102,7 @@ Meteor.publish('channel', function (channelSlug) {
                     }
                 });
     });
-
-    var channel = Channels.find({
-        slug: channelSlug
-    });
+    
     return channel;
 });
 
@@ -152,8 +173,8 @@ Meteor.methods({
                 currentTime: 0,
                 currentTimeUpdated: 0
             });
-            ["guest","member","moderator"].each(function(level) {
-                ["viewChannel","addVideo","removeVideo","changeActiveVideo","addMessage"].each(function(right) {
+            ["guest","member","moderator"].forEach(function(level) {
+                ["viewChannel","addVideo","removeVideo","changeActiveVideo","addMessage"].forEach(function(right) {
                     Rights.insert({
                         channelSlug: channelSlug,
                         level: level,
