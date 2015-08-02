@@ -56,8 +56,8 @@ A video has the following attributes:
 
 Each channel has a set of rights. Each right object has the following attributes.
 It is guaranteed, that the combination of channelSlug, level and right is unique. 
-It is not guaranteed to get a right object for each combination of channelSlug, level and right.
-For example you might only get this array for a channel:
+By default all rights are set to true and each combination of right and level is available and gets returned when the rights are requested.
+An example of the first two rights:
 ```js
 [
   {
@@ -71,7 +71,8 @@ For example you might only get this array for a channel:
     level: "moderator",
     right: "changeActiveVideo",
     value: true
-  }
+  },
+  ...
 ]
 ```
 This would allow guests to enter the channel and moderators to select the active video.
