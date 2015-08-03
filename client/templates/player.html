@@ -44,7 +44,7 @@
                                         <img src="/img/ic_action_settings.png" class="channel-settings" width="24" height="24" alt="Channel settings">
                                         {{/if}}
                                     </div>
-                                    <span style="margin-left: auto;">{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
+                                    <span style="margin-left: auto;display:none;">{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
                                 </paper-toolbar>
                                 
                                 <!-- Player -->
@@ -63,7 +63,7 @@
                                 
                                 <!-- Add video -->
                                 <paper-fab src="/img/ic_sync_black_24dp.png" class="play-toggle rotate"></paper-fab>
-                                <neon-animated-pages id="pages" selected="0">
+                                <neon-animated-pages id="pages" class="add-video-wrapper" selected="0">
 
                                     <animated-grid id="grid"></animated-grid>
                                     <fullsize-page-with-card id="fullsize-card" hero-id="hero">

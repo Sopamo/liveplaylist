@@ -15,14 +15,53 @@ Router.route('/c/:_channelSlug', function () {
         Meteor.subscribe("channel", videoPage.get("channelSlug"));
         Meteor.subscribe("channelRights", videoPage.get("channelSlug"));
         updateMemberList();
-        
     });
+    
+    updateRights();
 
     initalizeYoutube();
     
 
     this.render('videolist');
 });
+
+function updateRights() {
+    Meteor.call("getRights",videoPage.get("channelSlug"), function(err,rights) {
+        if(hasRight(rights,"changeActiveVideo")) {
+            $(".play-toggle").show();
+            $(".player-progress").get(0).style.pointerEvents = "auto";
+            $(".video-list").removeClass("nopointer");
+        } else {
+            $(".play-toggle").hide();
+            $(".player-progress").get(0).style.pointerEvents = "none";
+            $(".video-list").addClass("nopointer");
+        }
+
+        if (hasRight(rights, "addVideo")) {
+            $(".add-video-wrapper").show();
+        } else {
+            $(".add-video-wrapper").hide();
+        }
+
+        if (hasRight(rights, "addMessage")) {
+            $(".chat-form").show();
+        } else {
+            $(".chat-form").hide();
+        }
+
+    });
+    
+    function hasRight(rights,right) {
+        var result = true;
+        $.each(rights,function(k,r) {
+            if(r.right == right) {
+                result = r.value;
+            }
+        });
+        console.log("RIGHT: " + right + ": " + result);
+        return result;
+    }
+}
 
 AccountsTemplates.addField({
     _id: 'username',
@@ -142,10 +181,6 @@ Template.videolist.rendered = function() {
 };
 
 Template.videolist.events({
-    // 'change' is the event emitted by the component
-    'change #video-menu': function (e, template) {
-        console.log(e.target.value);
-    },
     "submit .chat-form": function () {
         Meteor.call("addMessage", videoPage.get("channelSlug"), $("#chat-message").val());
         $("#chat-message").val("");
@@ -165,7 +200,6 @@ Template.videolist.events({
     },
     "submit .add-video": function (event) {
         // This function is called when the new video form is submitted
-
         var query = $("#add-video-content").val();
         var $resultsContainer = $("#youtube-results");
         $.getJSON("https://www.googleapis.com/youtube/v3/search?videoEmbeddable=true&part=snippet&q=" + encodeURIComponent(query) + "&type=video&maxResults=5&key=AIzaSyDyrnr-qmqnPrBZwmnMnNnz7uSMSY_XJmM").done(function(data) {
