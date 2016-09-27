@@ -1,0 +1,73 @@
+@import "{poetic:materialize-scss}/sass/materialize.scss";
+
+.controls {
+    position: fixed;
+    height: 90px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 0 8px rgba(0,0,0,.4);
+    text-align: center;
+    line-height: 90px;
+    z-index: 10000;
+}
+
+#video-search {
+    margin-bottom: 90px;
+
+    .modal-content {
+        border-radius: 0;
+    }
+}
+
+.progress {
+    height: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #F3452B;
+    margin: 0;
+    border-radius: 0;
+}
+
+.play-toggle {
+    display: inline-block;
+    font-size: 68px;
+    color: #F3452B;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.search-trigger {
+    position: absolute;
+    right: 10px;
+    margin-top: -40px;
+}
+
+.video-entry {
+    padding: 20px;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.video-entry:hover {
+    background: #EEEEEE;
+}
+
+.video-entry.active {
+    background: #F56A22;
+    color: white;
+    font-weight: bold;
+}
+
+.video-entry.active:hover {
+    background: #F56A22;
+}
+
+#volume {
+    position: absolute;
+    right: 10px;
+    top: 28px;
+    width: 200px;
+}

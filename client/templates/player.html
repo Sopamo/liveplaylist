@@ -1,16 +1,41 @@
 <template name="videolist">
+
+    <!-- Video list -->
+    <div class="container">
+        <div class="row">
+            <div class="col-s12">
+                <div class="card">
+                    <div id="player"></div>
+                    <a href="#video-search" class="search-trigger btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+                    <div class="card-content">
+                      <span class="card-title">Video List</span>
+                        {{#each videos}}
+                        {{> video}}
+                        {{/each}}
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="progress" style="width: 67%;"></div>
+        <i class="material-icons dp48 play-toggle">pause_circle_filled</i>
+        <input type="range" id="volume" value="50">
+    </div>
+
+    <div id="video-search" class="modal bottom-sheet">
+        <div class="modal-content">
+          <h4>Modal Header</h4>
+          <p>A bunch of text</p>
+        </div>
+    </div>
+
+</template>
+
+<template name="videolist2">
     <div style="width:100%;height:100%;">
         <paper-drawer-panel right-drawer drawer-width="300px">
-            <paper-material drawer elevation="5">
-                <div class="chat-wrapper">
-                    {{#with currentChannel}}
-                    {{> chat}}
-                    {{/with}}
-                    <form class="chat-form">
-                        <input type="text" id="chat-message" class="form-control input-lg" placeholder="What's on your mind?" autocomplete="off">
-                    </form>
-                </div>
-            </paper-material>
             <div main>
                 <paper-drawer-panel responsive-width="1024px">
                     <paper-material class="sidebar" drawer elevation="5">
@@ -46,21 +71,16 @@
                                     </div>
                                     <span style="margin-left: auto;display:none;">{{ currentChannel.activeUsers }} active {{#if multiple currentChannel.activeUsers}}users{{else}}user{{/if}}</span>
                                 </paper-toolbar>
-                                
+
                                 <!-- Player -->
                                 <div id="player"></div>
                                 <paper-progress value="0" class="player-progress"></paper-progress>
                                 <div class="volume-slider-wrapper">
                                     <paper-slider pin="true" value="100" class="volume-slider"></paper-slider>
                                 </div>
-                                
-                                <!-- Video list -->
-                                <ul class="video-list">
-                                    {{#each videos}}
-                                    {{> video}}
-                                    {{/each}}
-                                </ul>
-                                
+
+
+
                                 <!-- Add video -->
                                 <paper-fab src="/img/ic_sync_black_24dp.png" class="play-toggle rotate"></paper-fab>
                                 <neon-animated-pages id="pages" class="add-video-wrapper" selected="0">
@@ -81,8 +101,8 @@
                                     </fullsize-page-with-card>
 
                                 </neon-animated-pages>
-                                
-                                
+
+
                             </paper-material>
                         </div>
                     </paper-header-panel>
@@ -99,7 +119,7 @@
                     <h2>Channel rights</h2>
                     <section class="rights-list">
                         <h1>Guests</h1>
-                        <paper-checkbox data-level="guest" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'guest' 'viewChannel' }}">View and listen to channel</paper-checkbox> 
+                        <paper-checkbox data-level="guest" data-right="viewChannel" class="right-checkbox" checked="{{ isChecked rights 'guest' 'viewChannel' }}">View and listen to channel</paper-checkbox>
                         <paper-checkbox data-level="guest" data-right="addVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'addVideo' }}">Add new videos</paper-checkbox>
                         <paper-checkbox data-level="guest" data-right="removeVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'removeVideo' }}">Delete videos</paper-checkbox>
                         <paper-checkbox data-level="guest" data-right="changeActiveVideo" class="right-checkbox" checked="{{ isChecked rights 'guest' 'changeActiveVideo' }}">Set the active video and start / pause playback</paper-checkbox>
@@ -154,7 +174,7 @@
             <paper-button raised style="background: green;color:white;" dialog-confirm>Save</paper-button>
         </div>
     </paper-dialog>
-    <paper-dialog id="claim-channel" 
+    <paper-dialog id="claim-channel"
                   entry-animation="scale-up-animation"
                   exit-animation="scale-down-animation">
         <h2>Claim this channel</h2>
@@ -203,23 +223,11 @@
 </template>
 
 <template name="video">
-    <li class="video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
-        {{title}}
-    </li>
-</template>
-
-<template name="chat">
-    <ul class="chat-messages">
-        {{#each messages}}
-        {{> chatmessage}}
-        {{/each}}
-    </ul>
-</template>
-
-<template name="chatmessage">
-    <li>
-        {{name}}: {{message}}
-    </li>
+    <div class="row video-entry {{#if isActive ytid}}active{{/if}}" data-videoid="{{ytid}}">
+        <div class="col-s4">
+            {{title}}
+        </div>
+    </div>
 </template>
 
 <template name="youtubeResult">
@@ -236,11 +244,11 @@
 <template name="member">
     <tr>
         <td>
-            {{username}}    
+            {{username}}
         </td>
         <td>
             <paper-checkbox class="member-moderator" data-username="{{username}}" checked="{{moderator}}"></paper-checkbox>
         </td>
-        
+
     </tr>
 </template>

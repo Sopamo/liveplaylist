@@ -77,12 +77,6 @@ paper-fab.play-toggle {
     cursor: pointer;
 }
 
-.video-entry.active {
-    background: #F56A22;
-    color: white;
-    font-weight: bold;
-}
-
 .video-list.nopointer .video-entry {
     pointer-events: none;
 }

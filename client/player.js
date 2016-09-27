@@ -16,11 +16,11 @@ Router.route('/c/:_channelSlug', function () {
         Meteor.subscribe("channelRights", videoPage.get("channelSlug"));
         updateMemberList();
     });
-    
+
     updateRights();
 
     initalizeYoutube();
-    
+
 
     this.render('videolist');
 });
@@ -29,11 +29,11 @@ function updateRights() {
     Meteor.call("getRights",videoPage.get("channelSlug"), function(err,rights) {
         if(hasRight(rights,"changeActiveVideo")) {
             $(".play-toggle").show();
-            $(".player-progress").get(0).style.pointerEvents = "auto";
+            $(".progress").get(0).style.pointerEvents = "auto";
             $(".video-list").removeClass("nopointer");
         } else {
             $(".play-toggle").hide();
-            $(".player-progress").get(0).style.pointerEvents = "none";
+            $(".progress").get(0).style.pointerEvents = "none";
             $(".video-list").addClass("nopointer");
         }
 
@@ -50,7 +50,7 @@ function updateRights() {
         }
 
     });
-    
+
     function hasRight(rights,right) {
         var result = true;
         $.each(rights,function(k,r) {
@@ -121,6 +121,9 @@ Template.videolist.helpers({
         return data;
     },
     isChecked: function (rights,level,right) {
+        if(typeof rights[level] == "undefined") {
+            return false;
+        }
         return rights[level][right];
     },
     members: function() {
@@ -139,15 +142,9 @@ Template.video.helpers({
     }
 });
 
-Template.chatmessage.rendered = function () {
-    $('.chat-messages').scrollTop($('.chat-messages').prop("scrollHeight"));
-};
-Template.chat.rendered = function () {
-    setTimeout(function () {
-        $('.chat-messages').scrollTop($('.chat-messages').prop("scrollHeight"));
-    }, 1000);
-};
 Template.videolist.rendered = function() {
+    $('.search-trigger').leanModal();
+    return;
     $('#add-video-content').autocomplete({
         lookup: function (query, done) {
             // Do ajax call or lookup locally, when done,
@@ -181,23 +178,6 @@ Template.videolist.rendered = function() {
 };
 
 Template.videolist.events({
-    "submit .chat-form": function () {
-        Meteor.call("addMessage", videoPage.get("channelSlug"), $("#chat-message").val());
-        $("#chat-message").val("");
-        return false;
-    },
-    "click .channel-settings": function(event) {
-        if(!Meteor.userId()) {
-            return;
-        }
-        if(Meteor.userId() == currentChannel.owner) {
-            document.getElementById("rights-management").open();
-        } else {
-            if(!currentChannel.owner) {
-                document.getElementById("claim-channel").open();
-            }
-        }
-    },
     "submit .add-video": function (event) {
         // This function is called when the new video form is submitted
         var query = $("#add-video-content").val();
@@ -216,7 +196,7 @@ Template.videolist.events({
         }).error(function() {
             alert("An error occured :( Please reload the page and try again.");
         });
-        
+
         /**/
 
         // Prevent default form submit
@@ -254,60 +234,16 @@ Template.videolist.events({
             Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 2, currentTime);
         }
     },
-    "submit .channel-select": function () {
-        // This function is called when a new channel is selected
-        Router.go("/c/" + $(".channel-input").val());
-
-        return false;
-    },
-    "immediate-value-change .volume-slider": function(e) {
+    "immediate-value-change #volume": function(e) {
         if (ytPlayer && ytPlayer.setVolume) {
             ytPlayer.setVolume($(".volume-slider").get(0).immediateValue);
         }
-    },
-    "iron-overlay-closed #rights-management": function(e) {
-        if(document.getElementById("rights-management").closingReason.confirmed === true) {
-            $(".right-checkbox").each(function() {
-                var el = $(this).get(0);
-                Meteor.call("setRight",videoPage.get("channelSlug"),el.dataset.level,el.dataset.right,el.checked, function(e) {
-                    console.log(e);
-                });
-            });
-        }
-    },
-    "iron-overlay-closed #claim-channel": function (e) {
-        if (document.getElementById("claim-channel").closingReason.confirmed === true) {
-            Meteor.call("claim",videoPage.get("channelSlug"),function(e,data) {
-                if(data === true) {
-                    document.querySelector('#channel-claimed').show();
-                } else {
-                    document.querySelector("#channel-claim-error").show();
-                }
-            });
-        }
-    },
-    "change .member-moderator": function(e) {
-        
-        var action;
-        if(e.target.checked) {
-            action = "addChannelModerator";
-        } else {
-            action = "addChannelMember";
-        }
-        Meteor.call(action,videoPage.get("channelSlug"), e.target.dataset.username);
-    },
-    "click #add-user-button": function() {
-        
-        Meteor.call("addChannelMember", videoPage.get("channelSlug"),document.getElementById("add-user-input").value, function(err,data) {
-            updateMemberList();
-        });
-        document.getElementById("add-user-input").value = "";
     }
 });
 
 Template.video.events({
     'click .video-entry': function (event, template) {
-        $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
+        $(".play-toggle").text("refresh").addClass("rotate");
         Meteor.call('changeVideo', videoPage.get("channelSlug"), $(event.target).data("videoid"), function (error, result) {
             if (error) {
                 console.log(error);
@@ -342,7 +278,7 @@ function initalizeYoutube() {
 
                 videoId: channel.active,
 
-                // Events like ready, state change, 
+                // Events like ready, state change,
                 events: {
                     onReady: function (event) {
                         // Play video when player ready.
@@ -369,21 +305,21 @@ function initalizeYoutube() {
                                     // We are now playing the video but it is the same video like before. Go to the given position in the video.
                                     ytPlayer.seekTo(currentTime, true);
                                     ytPlayer.playVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_pause_black_24dp.png").removeClass("rotate");
+                                    $(".play-toggle").text("pause_circle_filled").removeClass("rotate");
 
                                 } else if (currentChannel.currentStatus == 2) {
 
                                     // We have to stop the video
                                     ytPlayer.seekTo(currentTime, true);
                                     ytPlayer.pauseVideo();
-                                    $(".play-toggle").attr("src", "/img/ic_play_arrow_black_24dp.png").removeClass("rotate");
+                                    $(".play-toggle").text("play_circle_filled").removeClass("rotate");
                                 }
                             }
                         });
 
 
                         // Setup the progress bar dragging
-                        var progress = $(".player-progress").get(0);
+                        var progress = $(".progress").get(0);
                         var dragActive = false;
 
                         // Also setup the progress bar update
@@ -391,7 +327,7 @@ function initalizeYoutube() {
                             // Only update the progress bar when we are not currently dragging it and if the player is playing
                             if (!dragActive && ytPlayer.getPlayerState() == 1) {
                                 var percentage = ytPlayer.getCurrentTime() / ytPlayer.getDuration();
-                                $(".player-progress").attr("value", percentage * 100);
+                                $(".progress").attr("value", percentage * 100);
                             }
                         }, 1000);
 
@@ -402,13 +338,13 @@ function initalizeYoutube() {
                         progress.addEventListener("mousemove", function (e) {
                             if (dragActive) {
                                 var percentage = e.layerX / e.target.clientWidth;
-                                $(".player-progress").attr("value", percentage * 100);
+                                $(".progress").attr("value", percentage * 100);
                             }
                         }, false);
                         progress.addEventListener("mouseup", function (e) {
                             dragActive = false;
                             var percentage = e.layerX / e.target.clientWidth;
-                            $(".player-progress").attr("value", percentage * 100);
+                            $(".progress").attr("value", percentage * 100);
                             $(".play-toggle").attr("src", "/img/ic_sync_black_24dp.png").addClass("rotate");
                             Meteor.call("setVideoStatus", videoPage.get("channelSlug"), 1, percentage * ytPlayer.getDuration());
                         }, false);
